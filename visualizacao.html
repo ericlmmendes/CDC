@@ -1,0 +1,158 @@
+<script type="text/javascript">
+    var gk_isXlsx = false;
+    var gk_xlsxFileLookup = {};
+    var gk_fileData = {};
+    function filledCell(cell) {
+      return cell !== '' && cell != null;
+    }
+    function loadFileData(filename) {
+    if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+        try {
+            var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+            var firstSheetName = workbook.SheetNames[0];
+            var worksheet = workbook.Sheets[firstSheetName];
+
+            // Convert sheet to JSON to filter blank rows
+            var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+            // Filter out blank rows (rows where all cells are empty, null, or undefined)
+            var filteredData = jsonData.filter(row => row.some(filledCell));
+
+            // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+            var headerRowIndex = filteredData.findIndex((row, index) =>
+              row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+            );
+            // Fallback
+            if (headerRowIndex === -1 || headerRowIndex > 25) {
+              headerRowIndex = 0;
+            }
+
+            // Convert filtered JSON back to CSV
+            var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+            csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+            return csv;
+        } catch (e) {
+            console.error(e);
+            return "";
+        }
+    }
+    return gk_fileData[filename] || "";
+    }
+    </script><!DOCTYPE html>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Visualização - Sistema de Caminhões</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script defer src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script defer src="visualizacao.js"></script>
+</head>
+<body class="bg-gray-100 font-sans p-6">
+  <div class="max-w-screen-xl mx-auto">
+    <header class="flex justify-between items-center mb-6">
+      <h1 class="text-2xl font-bold">Sistema de Visualização</h1>
+      <button onclick="logout()" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">
+        Sair
+      </button>
+    </header>
+
+    <!-- Recebimento -->
+    <section class="mb-10">
+      <h2 class="text-xl font-semibold mb-2">Status dos Caminhões - Recebimento</h2>
+      <div class="overflow-x-auto bg-white rounded shadow">
+        <table class="w-full table-auto border-collapse">
+          <thead class="text-sm text-white" style="background-color: #2563EB;">
+            <tr>
+              <th class="p-2">Ordem</th>
+              <th class="p-2">Placa</th>
+              <th class="p-2">Hora Chegada</th>
+              <th class="p-2">Hora Inicial</th>
+              <th class="p-2">Hora Final</th>
+              <th class="p-2">Tipo</th>
+              <th class="p-2">Status</th>
+              <th class="p-2">Doca</th>
+            </tr>
+          </thead>
+          <tbody id="tabelaRecebimento" class="text-sm text-center"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Expedição -->
+    <section class="mb-10">
+      <h2 class="text-xl font-semibold mb-2">Status dos Caminhões - Expedição</h2>
+      <div class="overflow-x-auto bg-white rounded shadow">
+        <table class="w-full table-auto border-collapse">
+          <thead class="text-sm text-white" style="background-color: #2563EB;">
+            <tr>
+              <th class="p-2">Rota</th>
+              <th class="p-2">Placa</th>
+              <th class="p-2">UUID</th>
+              <th class="p-2">Hora de Entrada</th>
+              <th class="p-2">Hora de Saída</th>
+            </tr>
+          </thead>
+          <tbody id="tabelaExpedicao" class="text-sm text-center"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Devolução -->
+    <section class="mb-10">
+      <h2 class="text-xl font-semibold mb-2">Status dos Caminhões - Devolução</h2>
+      <div class="overflow-x-auto bg-white rounded shadow">
+        <table class="w-full table-auto border-collapse">
+          <thead class="text-sm text-white" style="background-color: #2563EB;">
+            <tr>
+              <th class="p-2">Rota</th>
+              <th class="p-2">Placa</th>
+              <th class="p-2">UUID</th>
+              <th class="p-2">Hora de Entrada</th>
+              <th class="p-2">Hora de Saída</th>
+            </tr>
+          </thead>
+          <tbody id="tabelaExpedicao" class="text-sm text-center"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Manobrista -->
+    <section class="mb-10">
+      <h2 class="text-xl font-semibold mb-2">Status dos Caminhões - Manobrista</h2>
+      <div class="overflow-x-auto bg-white rounded shadow">
+        <table class="w-full table-auto border-collapse">
+          <thead class="text-sm text-white" style="background-color: #2563EB;">
+            <tr>
+              <th class="p-2">Placa</th>
+              <th class="p-2">Tipo</th>
+              <th class="p-2">Status</th>
+              <th class="p-2">Doca</th>
+            </tr>
+          </thead>
+          <tbody id="tabelaExpedicao" class="text-sm text-center"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Manutenção -->
+    <section class="mb-10">
+      <h2 class="text-xl font-semibold mb-2">Status dos Equipamentos - Manutenção</h2>
+      <div class="overflow-x-auto bg-white rounded shadow">
+        <table class="w-full table-auto border-collapse">
+          <thead class="text-sm text-white" style="background-color: #2563EB;">
+            <tr>
+              <th class="p-2">Equipamento</th>
+              <th class="p-2">Tipo de Manutenção</th>
+              <th class="p-2">Horário de Início</th>
+              <th class="p-2">Horário de Finalização</th>
+            </tr>
+          </thead>
+          <tbody id="tabelaManutencao" class="text-sm text-center"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

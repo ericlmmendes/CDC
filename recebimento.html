@@ -1,0 +1,200 @@
+<script type="text/javascript">
+    var gk_isXlsx = false;
+    var gk_xlsxFileLookup = {};
+    var gk_fileData = {};
+    function filledCell(cell) {
+      return cell !== '' && cell != null;
+    }
+    function loadFileData(filename) {
+    if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+        try {
+            var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+            var firstSheetName = workbook.SheetNames[0];
+            var worksheet = workbook.Sheets[firstSheetName];
+
+            // Convert sheet to JSON to filter blank rows
+            var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+            // Filter out blank rows (rows where all cells are empty, null, or undefined)
+            var filteredData = jsonData.filter(row => row.some(filledCell));
+
+            // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+            var headerRowIndex = filteredData.findIndex((row, index) =>
+              row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+            );
+            // Fallback
+            if (headerRowIndex === -1 || headerRowIndex > 25) {
+              headerRowIndex = 0;
+            }
+
+            // Convert filtered JSON back to CSV
+            var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+            csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+            return csv;
+        } catch (e) {
+            console.error(e);
+            return "";
+        }
+    }
+    return gk_fileData[filename] || "";
+    }
+    </script><!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login - Recebimento CDC</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script defer src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script defer src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script defer src="recebimento.js"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+<div id="loginSection" class="container mx-auto p-4 flex flex-col items-center justify-center min-h-screen">
+    <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+        <h2 class="text-2xl font-bold mb-4 text-center">Login Recebimento</h2>
+        <p id="loginError" class="text-red-500 text-center mb-4 hidden">Usuário ou senha inválidos.</p>
+        <form id="loginForm">
+            <div class="mb-4">
+                <label for="username" class="block text-sm font-medium text-gray-700">Usuário</label>
+                <input type="text" id="username" class="mt-1 block w-full p-2 border rounded-lg" required>
+            </div>
+            <div class="mb-4">
+                <label for="password" class="block text-sm font-medium text-gray-700">Senha</label>
+                <input type="password" id="password" class="mt-1 block w-full p-2 border rounded-lg" required>
+            </div>
+            <button type="submit" class="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600">Entrar</button>
+        </form>
+        <a href="index.html" class="block text-center mt-4 text-blue-500 hover:underline">Sair</a>
+    </div>
+</div>
+
+<div id="mainScreen" class="container mx-auto p-4 pb-16 hidden">
+    <div class="flex justify-center mb-4">
+        <img src="https://www.imile.com/images/logos/Christmas_logo_Blue.svg" alt="Logo" class="rounded-full w-24 h-24">
+    </div>
+    <h1 class="text-2xl font-bold text-center mb-4">Gerenciamento de Veículo - Recebimento</h1>
+
+    <div class="bg-white p-4 rounded-lg shadow-md mb-4">
+        <h2 class="text-lg font-semibold mb-2">Adicionar Veículo</h2>
+        <input id="placaInput" type="text" placeholder="Placa do Caminhão (ex: ABC1234 ou ABC1D23)" class="w-full p-2 mb-2 border rounded" maxlength="7">
+        <input id="horaInput" type="time" placeholder="Hora de Chegada" class="w-full p-2 mb-2 border rounded">
+        <select id="tipoVeiculoInput" class="w-full p-2 mb-2 border rounded">
+            <option value="">Selecione o Tipo de Veículo</option>
+            <option value="Carreta - PA">Carreta - PA</option>
+            <option value="Carreta - Internacional">Carreta - Internacional</option>
+            <option value="Carreta - CAINIAO">Carreta - CAINIAO</option>
+            <option value="Carreta - SHEIN">Carreta - SHEIN</option>
+            <option value="D2D">D2D</option>
+        </select>
+        <select id="docaInput" class="w-full p-2 mb-2 border rounded">
+            <option value="">Selecione a Doca</option>
+            <option value="Doca 1">Doca 1</option>
+            <option value="Doca 2">Doca 2</option>
+            <option value="Doca 3">Doca 3</option>
+            <!-- Adicione mais docas conforme necessário -->
+        </select>
+        <button onclick="adicionarCaminhao()" class="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600">Adicionar</button>
+    </div>
+
+    <div class="bg-white p-4 rounded-lg shadow-md overflow-x-auto">
+        <table class="w-full text-left">
+            <thead>
+                <tr class="text-sm text-white" style="background-color: #2563EB;">
+                    <th class="p-2">Ordem</th>
+                    <th class="p-2">Placa</th>
+                    <th class="p-2">Hora Chegada</th>
+                    <th class="p-2">Hora Inicial</th>
+                    <th class="p-2">Hora Final</th>
+                    <th class="p-2">Tipo</th>
+                    <th class="p-2">Status</th>
+                    <th class="p-2">Doca</th>
+                    <th class="p-2">Ações</th>
+                </tr>
+            </thead>
+            <tbody id="tabelaCaminhoes"></tbody>
+        </table>
+    </div>
+
+    <div class="flex space-x-2 mt-4">
+        <button onclick="gerarRelatorioParcial()" class="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600">Gerar Relatório Parcial</button>
+        <button onclick="verificarCaminhoesEmAndamento()" class="w-full bg-green-500 text-white p-2 rounded hover:bg-green-600">Finalizar Turno</button>
+        <button onclick="logout()" class="w-full bg-red-500 text-white p-2 rounded hover:bg-red-600">Sair</button>
+    </div>
+
+    <div id="modalWhatsAppParcial" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center">
+        <div class="bg-white p-6 rounded-lg shadow-lg">
+            <h2 class="text-lg font-semibold mb-4">Enviar Relatório Parcial via WhatsApp</h2>
+            <div class="flex space-x-2">
+                <button onclick="enviarRelatorioParcialWhatsApp()" class="bg-blue-500 text-white p-2 rounded hover:bg-blue-600">Enviar</button>
+                <button onclick="fecharModalWhatsAppParcial()" class="bg-red-500 text-white p-2 rounded hover:bg-red-600">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalWhatsApp" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center">
+        <div class="bg-white p-6 rounded-lg shadow-lg">
+            <h2 class="text-lg font-semibold mb-4">Enviar Relatório via WhatsApp</h2>
+            <textarea id="infoAdicional" placeholder="Informação Adicional (opcional, máx. 500 caracteres)" class="w-full p-2 mb-4 border rounded" rows="4" maxlength="500"></textarea>
+            <div class="flex space-x-2">
+                <button onclick="enviarRelatorioWhatsApp()" class="bg-green-500 text-white p-2 rounded hover:bg-green-600">Enviar</button>
+                <button onclick="fecharModalWhatsApp()" class="bg-red-500 text-white p-2 rounded hover:bg-red-600">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalMensagemGrupo" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center">
+        <div class="bg-white p-6 rounded-lg shadow-lg">
+            <h2 class="text-lg font-semibold mb-4">Enviar Mensagem via WhatsApp</h2>
+            <p id="infoCaminhao" class="mb-2"></p>
+            <textarea id="mensagemGrupo" placeholder="Digite sua mensagem (máx. 500 caracteres)" class="w-full p-2 mb-4 border rounded" rows="4" maxlength="500"></textarea>
+            <div class="flex space-x-2">
+                <button onclick="enviarMensagemGrupo()" class="bg-purple-500 text-white p-2 rounded hover:bg-purple-600">Enviar</button>
+                <button onclick="fecharModalMensagemGrupo()" class="bg-red-500 text-white p-2 rounded hover:bg-red-600">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalEditarDoca" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center">
+        <div class="bg-white p-6 rounded-lg shadow-lg">
+            <h2 class="text-lg font-semibold mb-4">Editar Doca do Caminhão</h2>
+            <p id="placaCaminhao" class="mb-2"></p>
+            <select id="novaDocaInput" class="w-full p-2 mb-4 border rounded">
+                <option value="">Selecione a Nova Doca</option>
+                <option value="Doca 1">Doca 1</option>
+                <option value="Doca 2">Doca 2</option>
+                <option value="Doca 3">Doca 3</option>
+                <!-- Adicione mais docas conforme necessário -->
+            </select>
+            <div class="flex space-x-2">
+                <button onclick="salvarNovaDoca()" class="bg-blue-500 text-white p-2 rounded hover:bg-blue-600">Salvar</button>
+                <button onclick="fecharModalEditarDoca()" class="bg-red-500 text-white p-2 rounded hover:bg-red-600">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalAlterarPlaca" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center">
+        <div class="bg-white p-6 rounded-lg shadow-lg">
+            <h2 class="text-lg font-semibold mb-4">Alterar Placa do Caminhão</h2>
+            <p id="placaAtual" class="mb-2"></p>
+            <input id="novaPlacaInput" type="text" placeholder="Nova Placa (ex: ABC1234 ou ABC1D23)" class="w-full p-2 mb-4 border rounded" maxlength="7">
+            <div class="flex space-x-2">
+                <button onclick="salvarNovaPlaca()" class="bg-blue-500 text-white p-2 rounded hover:bg-blue-600">Salvar</button>
+                <button onclick="fecharModalAlterarPlaca()" class="bg-red-500 text-white p-2 rounded hover:bg-red-600">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalPorcentagem" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center">
+        <div class="bg-white p-6 rounded-lg shadow-lg max-h-[80vh] overflow-y-auto">
+            <h2 class="text-lg font-semibold mb-4">Porcentagem Restante dos Caminhões em Andamento</h2>
+            <div id="camposPorcentagem"></div>
+            <div class="flex space-x-2 mt-4">
+                <button onclick="salvarPorcentagens()" class="bg-green-500 text-white p-2 rounded hover:bg-green-600">Salvar</button>
+                <button onclick="fecharModalPorcentagem()" class="bg-red-500 text-white p-2 rounded hover:bg-red-600">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'94a55656ba4c0123',t:'MTc0OTAxODE2MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
