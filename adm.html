@@ -1,138 +1,201 @@
-<script type="text/javascript">
-    var gk_isXlsx = false;
-    var gk_xlsxFileLookup = {};
-    var gk_fileData = {};
-    function filledCell(cell) {
-      return cell !== '' && cell != null;
-    }
-    function loadFileData(filename) {
-    if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
-        try {
-            var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
-            var firstSheetName = workbook.SheetNames[0];
-            var worksheet = workbook.Sheets[firstSheetName];
-
-            // Convert sheet to JSON to filter blank rows
-            var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
-            // Filter out blank rows (rows where all cells are empty, null, or undefined)
-            var filteredData = jsonData.filter(row => row.some(filledCell));
-
-            // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
-            var headerRowIndex = filteredData.findIndex((row, index) =>
-              row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
-            );
-            // Fallback
-            if (headerRowIndex === -1 || headerRowIndex > 25) {
-              headerRowIndex = 0;
-            }
-
-            // Convert filtered JSON back to CSV
-            var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
-            csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
-            return csv;
-        } catch (e) {
-            console.error(e);
-            return "";
-        }
-    }
-    return gk_fileData[filename] || "";
-    }
-    </script><!DOCTYPE html>
-<html lang="pt-BR">
+<!DOCTYPE html>
+<html lang="pt">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ADM Acesso Rapid</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="adm.js" defer></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Manoel G F M</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #1a1a2e;
+            color: #fff;
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .section {
+            background-color: #162447;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s;
+        }
+        .section:hover {
+            transform: translateY(-5px);
+        }
+        .section h2 {
+            margin-top: 0;
+            font-size: 1.3em;
+            color: #0d6efd;
+            border-bottom: 2px solid #0d6efd;
+            padding-bottom: 5px;
+        }
+        .button {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            background-color: #0d6efd;
+            color: #fff;
+            text-align: center;
+            text-decoration: none;
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+        form {
+            margin: 8px 0;
+        }
+
+        /* Media Queries para responsividade */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            .container {
+                grid-template-columns: 1fr;
+            }
+            .section {
+                padding: 15px;
+            }
+            .button {
+                font-size: 0.95em;
+                padding: 10px;
+            }
+        }
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.5em;
+            }
+            .section h2 {
+                font-size: 1.1em;
+            }
+        }
+    </style>
 </head>
-<body class="bg-gray-100 p-6">
-<div class="max-w-6xl mx-auto">
-    <h1 class="text-3xl font-bold mb-6 text-center">ADM</h1>
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        <!-- Form 1: Expedição and Validação PDA -->
-        <div class="bg-white p-6 rounded-lg shadow-lg">
-            <h2 class="text-2xl font-bold mb-4">Expedição e Validação PDA</h2>
-            <form>
-                <div class="flex flex-row flex-wrap gap-4">
-                    <a href="https://dc.imile.com/#/DCoperation/DCOperationmanagement/loadingScan" target="_blank" class="bg-blue-500 text-white p-4 rounded-md text-center hover:bg-blue-600 min-w-[150px] flex-1">Expedição: 1 Nota / LoadingScan</a>
-                    <a href="https://dc.imile.com/#/DCFinance/MDFeManagement" target="_blank" class="bg-blue-500 text-white p-4 rounded-md text-center hover:bg-blue-600 min-w-[150px] flex-1">Expedição: 2 MDFe (Nota)</a>
-                    <a href="https://dc.imile.com/#/TransportManageDC/DCTransportMonitor/transportedGoodsValueMonitoring" target="_blank" class="bg-blue-500 text-white p-4 rounded-md text-center hover:bg-blue-600 min-w-[150px] flex-1">Monitor de Transporte: Valor das Mercadorias</a>
-                    <a href="https://dc.imile.com/#/DCBasicInfo/DCAuthorityManagement/StuffManagement" target="_blank" class="bg-blue-500 text-white p-4 rounded-md text-center hover:bg-blue-600 min-w-[150px] flex-1">Validação de Login para PDA</a>
-                </div>
-            </form>
+<body>
+    <div class="header">
+        <h1>Manoel G F M - ADM</h1>
+    </div>
+    <div class="container">
+        <div class="section">
+            <h2>Relatório</h2>
+            <form action="https://dc.imile.com/#/DCoperation/ScanQueryNew/ScanQueryArrival" method="get"><button type="submit" class="button">Chegada</button></form>
+            <form action="https://dc.imile.com/#/DeviceManagement/DCSortingMachineManagement/SortingDataWaybill" method="get"><button type="submit" class="button">Máquina de Classificação</button></form>
+            <form action="https://dc.imile.com/#/DCoperation/ScanQueryNew/ScanQueryLoadingScan" method="get"><button type="submit" class="button">LoadingScan</button></form>
+            <form action="https://dc.imile.com/#/DCoperation/ScanQueryNew/ScanQueryLoadingScan" method="get"><button type="submit" class="button">ConsolidaBag</button></form>
+            <form action="https://dc.imile.com/#/DCoperation/ScanQueryNew/ScanQueryDeparture" method="get"><button type="submit" class="button">Partida</button></form>
         </div>
-        <!-- Form 2: Operações -->
-        <div class="bg-white p-6 rounded-lg shadow-lg">
-            <h2 class="text-2xl font-bold mb-4">Operacional</h2>
-            <form>
-                <div class="flex flex-row flex-wrap gap-4">
-                    <a href="https://dc.imile.com/#/DCoperation/ScanQueryNew/ScanQueryArrival" target="_blank" class="bg-blue-500 text-white p-4 rounded-md text-center hover:bg-blue-600 min-w-[150px] flex-1">Arrival</a>
-                    <a href="https://dc.imile.com/#/DeviceManagement/DCSortingMachineManagement/SortingDataWaybill" target="_blank" class="bg-blue-500 text-white p-4 rounded-md text-center hover:bg-blue-600 min-w-[150px] flex-1">Equipamento / Máquina de Classificação</a>
-                    <a href="https://dc.imile.com/#/DCoperation/ScanQueryNew/ScanQueryLoadingScan" target="_blank" class="bg-blue-500 text-white p-4 rounded-md text-center hover:bg-blue-600 min-w-[150px] flex-1">LoadingScan</a>
-                    <a href="https://dc.imile.com/#/DCoperation/ScanQueryNew/ScanQueryLoadingScan" target="_blank" class="bg-blue-500 text-white p-4 rounded-md text-center hover:bg-blue-600 min-w-[150px] flex-1">ConsolidateBag</a>
-                    <a href="https://dc.imile.com/#/DCoperation/ScanQueryNew/ScanQueryDeparture" target="_blank" class="bg-blue-500 text-white p-4 rounded-md text-center hover:bg-blue-600 min-w-[150px] flex-1">Departure</a>
-                    <a href="https://dc.imile.com/#/TransportManageDC/DCTransportMonitor/transportMonitorSegmentReport" target="_blank" class="bg-blue-500 text-white p-4 rounded-md text-center hover:bg-blue-600 min-w-[150px] flex-1">Verificação de Carreta</a>
-                </div>
-            </form>
+        <div class="section">
+            <h2>Login e Etiquetas</h2>
+            <form action="https://dc.imile.com/#/DCBasicInfo/DCAuthorityManagement/StuffManagement" method="get"><button type="submit" class="button">Login para PDA</button></form>
+            <form action="https://dc.imile.com/#/DCoperation/DCOperationmanagement/dsConsolidateScan" method="get"><button type="submit" class="button">Etiqueta PDA</button></form>
+            <h2>Controle Carretas</h2>
+            <form action="https://dc.imile.com/#/TransportManageDC/DCTransportMonitor/transportMonitorSegmentReport" method="get"><button type="submit" class="button">Verificação Carreta</button></form>
+            <form action="https://dc.imile.com/#/DCoperation/DCScanmanagement/ScanQuery" method="get"><button type="submit" class="button">Verificação de Descarga</button></form>
+            <form action="https://docs.google.com/spreadsheets/d/1MbhlUShVEn4N9KptmCMxD5fbgdWUpaA6ZcR_7W6guKA/edit?gid=487606796#gid=487606796" method="get"><button type="submit" class="button">Controle de Descarrega / Recebimento</button></form>
         </div>
-        <!-- Registro de Headcount -->
-        <div class="bg-white p-6 rounded-lg shadow-lg">
-            <h2 class="text-2xl font-bold mb-4">Registro de Headcount</h2>
-        <form id="headcountForm">
-            <div class="mb-4">
-                <label for="date" class="block text-sm font-medium text-gray-700">Data</label>
-                <input type="text" id="date" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" readonly>
-            </div>
-            <div class="mb-4">
-                <label for="turno" class="block text-sm font-medium text-gray-700">Turno</label>
-                <select id="turno" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" required>
-                    <option value="T1">T1</option>
-                    <option value="T2">T2</option>
-                    <option value="T3">T3</option>
-                </select>
-            </div>
-            <div class="mb-4">
-                <label for="tercerizado" class="block text-sm font-medium text-gray-700">Tercerizado (长期工)</label>
-                <input type="number" id="tercerizado" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" min="0" required>
-            </div>
-            <div class="mb-4">
-                <label for="diarista" class="block text-sm font-medium text-gray-700">Diarista (临时工)</label>
-                <input type="number" id="diarista" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" min="0" required>
-            </div>
-            <div class="mb-4">
-                <label for="headcount" class="block text-sm font-medium text-gray-700">Headcount</label>
-                <input type="number" id="headcount" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" readonly>
-            </div>
-            <button type="button" id="sendWhatsApp" class="w-full bg-blue-500 text-white p-4 rounded-md hover:bg-blue-600">Enviar para WhatsApp</button>
-        </form>
-        <p id="formMessage" class="text-green-500 text-sm mt-4 hidden">Relatório preparado com sucesso!</p>
-        <p id="formError" class="text-red-500 text-sm mt-4 hidden">Erro ao preparar relatório.</p>
+        <div class="section">
+            <h2>Expedição</h2>
+            <form action="https://dc.imile.com/#/DCoperation/DCOperationmanagement/loadingScan" method="get"><button type="submit" class="button">Notas / LoadingScan</button></form>
+            <form action="https://dc.imile.com/#/DCFinance/MDFeManagement" method="get"><button type="submit" class="button">MDFe</button></form>
+            <form action="https://dc.imile.com/#/TransportManageDC/DCTransportMonitor/transportedGoodsValueMonitoring" method="get"><button type="submit" class="button">Monitor de Transporte</button></form>
         </div>
-
-        <!-- Form 2: Operações -->
-        <div class="bg-white p-6 rounded-lg shadow-lg">
-            <h2 class="text-2xl font-bold mb-4">Controles Externos</h2>
-            <form>
-                <div class="flex flex-row flex-wrap gap-4">
-                    <a href="https://docs.google.com/spreadsheets/d/1HF92DC0X1301vyquRkgRegQwkcXyPzcdEaAQe3SQEF4/edit?gid=1290737513#gid=1290737513" target="_blank" class="bg-blue-500 text-white p-4 rounded-md text-center hover:bg-blue-600">Controle de Expedição</a>
-            <a href="https://docs.google.com/spreadsheets/d/1pcpj1VUwHIZNjL-qOpVS1apxMo2e_KxYFlJ8xF4rLAY/edit?gid=0#gid=0" target="_blank" class="bg-blue-500 text-white p-4 rounded-md text-center hover:bg-blue-600">Controle de Headcount de CDC</a>
-            <a href="https://docs.google.com/spreadsheets/d/1MbhlUShVEn4N9KptmCMxD5fbgdWUpaA6ZcR_7W6guKA/edit?gid=487606796#gid=487606796" target="_blank" class="bg-blue-500 text-white p-4 rounded-md text-center hover:bg-blue-600">Controle de Descarga / Recebimento</a>
-                </div>
-            </form>
+        <div class="section">
+            <h2>Acesso Rápido</h2>
+            <form action="https://docs.google.com/spreadsheets/d/1HF92DC0X1301vyquRkgRegQwkcXyPzcdEaAQe3SQEF4/edit?gid=1290737513#gid=1290737513" method="get"><button type="submit" class="button">Controle de Expedição</button></form>
+            <form action="https://docs.google.com/spreadsheets/d/1pcpj1VUwHIZNjL-qOpVS1apxMo2e_KxYFlJ8xF4rLAY/edit?gid=0#gid=0" method="get"><button type="submit" class="button">Headcount de CDC</button></form>
+        </div>
+        <div class="section">
+            <!-- Headcount Form -->
+            <div class="bg-white p-6 rounded-lg shadow-lg text-black">
+                <h2 class="text-2xl font-bold mb-4">Registro de Headcount</h2>
+                <form id="headcountForm">
+                    <div class="mb-4">
+                        <label for="date" class="block text-sm font-medium text-gray-700">Data</label>
+                        <input type="text" id="date" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" readonly>
+                    </div>
+                    <div class="mb-4">
+                        <label for="turno" class="block text-sm font-medium text-gray-700">Turno</label>
+                        <select id="turno" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" required>
+                            <option value="T1">T1</option>
+                            <option value="T2">T2</option>
+                            <option value="T3">T3</option>
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <label for="tercerizado" class="block text-sm font-medium text-gray-700">Tercerizado (长期工)</label>
+                        <input type="number" id="tercerizado" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" min="0" required>
+                    </div>
+                    <div class="mb-4">
+                        <label for="diarista" class="block text-sm font-medium text-gray-700">Diarista (临时工)</label>
+                        <input type="number" id="diarista" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" min="0" required>
+                    </div>
+                    <div class="mb-4">
+                        <label for="headcount" class="block text-sm font-medium text-gray-700">Headcount</label>
+                        <input type="number" id="headcount" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" readonly>
+                    </div>
+                    <button type="button" id="sendWhatsApp" class="w-full bg-blue-500 text-white p-4 rounded-md hover:bg-blue-600">Enviar para WhatsApp</button>
+                </form>
+                <p id="formMessage" class="text-green-500 text-sm mt-4 hidden">Relatório preparado com sucesso!</p>
+                <p id="formError" class="text-red-500 text-sm mt-4 hidden">Erro ao preparar relatório.</p>
+            </div>
         </div>
     </div>
-    <!-- Google Sheets Links -->
-    <div class="bg-white p-6 rounded-lg shadow-lg mb-8">
-        <h2 class="text-2xl font-bold mb-4">ADMs</h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <a href="" target="_blank" class="bg-gray-500 text-white p-4 rounded-md text-center hover:bg-blue-600">OFF</a>
-            <a href="" target="_blank" class="bg-gray-500 text-white p-4 rounded-md text-center hover:bg-blue-600">OFF</a>
-            <a href="" target="_blank" class="bg-gray-500 text-white p-4 rounded-md text-center hover:bg-blue-600">OFF</a>
-        </div>
-    </div>
-    
+    <script>
+        // Set current date in YYYY-MM-DD format
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        document.getElementById('date').value = `${year}-${month}-${day}`;
 
-</div>
+        // Calculate Headcount
+        document.getElementById('tercerizado').addEventListener('input', updateHeadcount);
+        document.getElementById('diarista').addEventListener('input', updateHeadcount);
+
+        function updateHeadcount() {
+            const tercerizado = parseInt(document.getElementById('tercerizado').value) || 0;
+            const diarista = parseInt(document.getElementById('diarista').value) || 0;
+            document.getElementById('headcount').value = tercerizado + diarista;
+        }
+
+        // Simulate WhatsApp send with new format
+        document.getElementById('sendWhatsApp').addEventListener('click', function() {
+            const date = document.getElementById('date').value;
+            const turno = document.getElementById('turno').value;
+            const tercerizado = document.getElementById('tercerizado').value;
+            const diarista = document.getElementById('diarista').value;
+            const headcount = document.getElementById('headcount').value;
+
+            if (turno && tercerizado && diarista) {
+                const message = `Data: ${date}\nTurno: ${turno}\nHeadcount: ${headcount} pessoas\nTercerizado 长期工: ${tercerizado} pessoas\nDiarista 临时工: ${diarista} pessoas`;
+                const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+                window.open(whatsappUrl, '_blank');
+                document.getElementById('formMessage').classList.remove('hidden');
+                setTimeout(() => document.getElementById('formMessage').classList.add('hidden'), 3000);
+            } else {
+                document.getElementById('formError').classList.remove('hidden');
+                setTimeout(() => document.getElementById('formError').classList.add('hidden'), 3000);
+            }
+        });
+    </script>
 </body>
 </html>
