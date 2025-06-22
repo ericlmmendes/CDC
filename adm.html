@@ -160,14 +160,14 @@
         </div>
     </div>
     <script>
-        // Set current date in YYYY-MM-DD format
+        // Definir data atual no formato AAAA-MM-DD
         const today = new Date();
         const year = today.getFullYear();
         const month = String(today.getMonth() + 1).padStart(2, '0');
         const day = String(today.getDate()).padStart(2, '0');
         document.getElementById('date').value = `${year}-${month}-${day}`;
 
-        // Calculate Headcount
+        // Calcular contagem de funcionários
         document.getElementById('tercerizado').addEventListener('input', updateHeadcount);
         document.getElementById('diarista').addEventListener('input', updateHeadcount);
 
@@ -177,7 +177,7 @@
             document.getElementById('headcount').value = tercerizado + diarista;
         }
 
-        // Simulate WhatsApp send with new format
+        // Envio do WhatsApp
         document.getElementById('sendWhatsApp').addEventListener('click', function() {
             const date = document.getElementById('date').value;
             const turno = document.getElementById('turno').value;
