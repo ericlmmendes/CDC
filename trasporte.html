@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Relatório de Transporte</title>
+  <script src="https://www.gstatic.com/charts/loader.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-1ycn6IcaQQ40/MKBW2W4Rhis/DbILU74C1vSrLJxCq57o941Ym01SwNsOMqvEBFlcgUa6xLiPY/NS5R+E6ztJQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Roboto', 'Segoe UI', Tahoma, sans-serif;
+      background: #f8f9fc;
+      color: #2d3748;
+      line-height: 1.6;
+      padding-top: 11rem;
+      overflow-x: auto;
+    }
+    #fixed-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(180deg, #1a4971, #2d6a9f);
+      color: white;
+      padding: 1.5rem 2rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      z-index: 1000;
+    }
+    #fixed-header h2 {
+      font-weight: 500;
+      font-size: 1.75rem;
+      letter-spacing: 0.02em;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    #controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: center;
+    }
+    input#searchInput {
+      flex: 1;
+      min-width: 15rem;
+      padding: 0.75rem 2.5rem 0.75rem 1rem;
+      border-radius: 6px;
+      border: 1px solid #e2e8f0;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+      background: white;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512' width='16' height='16' fill='%236b7280'%3E%3Cpath d='M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 1rem center;
+      background-size: 1rem;
+    }
+    input#searchInput:focus {
+      border-color: #2b6cb0;
+      box-shadow: 0 0 8px rgba(43,108,176,0.3);
+    }
+    button {
+      background: #2b6cb0;
+      border: none;
+      color: white;
+      padding: 0.75rem 1.25rem;
+      border-radius: 6px;
+      font-weight: 400;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: background 0.3s ease, transform 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    button:hover {
+      background: #2c5282;
+      transform: translateY(-1px);
+    }
+    button:focus {
+      outline: 2px solid #2b6cb0;
+      outline-offset: 2px;
+    }
+    button i {
+      font-size: 1rem;
+    }
+    .table-container {
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 0 1.5rem 2rem;
+      position: relative;
+    }
+    table {
+      width: 100%;
+      min-width: 60rem;
+      border-collapse: separate;
+      border-spacing: 0;
+      font-size: 0.9rem;
+      background: white;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      border-radius: 8px;
+      table-layout: fixed;
+    }
+    thead {
+      background: #2b6cb0;
+      color: white;
+      font-weight: 500;
+      font-size: 0.95rem;
+      position: fixed;
+      top: 8.5rem;
+      left: 0;
+      right: 0;
+      z-index: 1100;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      width: calc(100% - 3rem);
+      margin: 0 1.5rem;
+      table-layout: fixed;
+    }
+    thead th {
+      padding: 1rem 1.25rem;
+      text-align: left;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    tbody {
+      display: block;
+      margin-top: 5.5rem;
+    }
+    tbody tr {
+      display: table;
+      width: 100%;
+      table-layout: fixed;
+      transition: background-color 0.3s ease;
+    }
+    tbody tr:hover {
+      background-color: #edf2f7;
+    }
+    tbody td {
+      padding: 0.8rem 1.25rem;
+      color: #2d3748;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .status-expedido {
+      background-color: #e6fffa;
+      color: #2f855a;
+      font-weight: 500;
+    }
+    .status-devolucao {
+      background-color: #f4f3ff;
+      color: #5a4b9c;
+      font-weight: 500;
+    }
+    .status-emcarregamento {
+      background-color: #fefcbf;
+      color: #b7791f;
+      font-weight: 500;
+    }
+    .status-emdoca {
+      background-color: #fff5f5;
+      color: #9b2c2c;
+      font-weight: 500;
+    }
+    .status-insumos {
+      background-color: #e6f3ff;
+      color: #2a4365;
+      font-weight: 500;
+    }
+    #scrollBottomBtn {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: #2b6cb0;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 3.5rem;
+      height: 3.5rem;
+      font-size: 1.75rem;
+      cursor: pointer;
+      box-shadow: 0 6px 12px rgba(43,108,176,0.3);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: background 0.3s ease, transform 0.2s ease;
+      z-index: 10000;
+    }
+    #scrollBottomBtn:hover {
+      background: #2c5282;
+      transform: translateY(-2px);
+    }
+    @media (max-width: 768px) {
+      body {
+        padding-top: 14rem;
+      }
+      #fixed-header {
+        padding: 1rem 1.25rem;
+      }
+      #fixed-header h2 {
+        font-size: 1.4rem;
+      }
+      #controls {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      input#searchInput {
+        min-width: 100%;
+      }
+      button {
+        width: 100%;
+        justify-content: center;
+        padding: 0.8rem;
+      }
+      thead {
+        top: 11.5rem;
+        width: calc(100% - 2.5rem);
+        margin: 0 1.25rem;
+      }
+      tbody {
+        margin-top: 6.5rem;
+      }
+      .table-container {
+        margin: 0 1rem 2rem;
+      }
+    }
+    @media (max-width: 480px) {
+      table {
+        font-size: 0.85rem;
+      }
+      thead th, tbody td {
+        padding: 0.6rem 0.8rem;
+      }
+      #scrollBottomBtn {
+        width: 3rem;
+        height: 3rem;
+        font-size: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="fixed-header">
+    <h2><i class="fas fa-file-alt"></i> Relatório de Transporte</h2>
+    <div id="controls">
+      <input type="text" id="searchInput" placeholder="Buscar..." oninput="refreshTable()" aria-label="Buscar na tabela" />
+      <button onclick="filterByStatus('Expedido')" aria-label="Filtrar Expedido"><i class="fas fa-check-circle"></i> Expedido</button>
+      <button onclick="filterByStatus('Devolução')" aria-label="Filtrar Devolução"><i class="fas fa-undo"></i> Devolução</button>
+      <button onclick="filterByStatus('Em Carregamento')" aria-label="Filtrar Em Carregamento"><i class="fas fa-box"></i> Em Carregamento</button>
+      <button onclick="filterByStatus('Em doca')" aria-label="Filtrar Em doca"><i class="fas fa-warehouse"></i> Em doca</button>
+      <button onclick="filterByStatus('Insumos')" aria-label="Filtrar Insumos"><i class="fas fa-flask"></i> Insumos</button>
+      <button onclick="filterAll()" aria-label="Mostrar todos"><i class="fas fa-list"></i> Mostrar Todos</button>
+    </div>
+  </div>
+
+  <div class="table-container">
+    <table id="dataTable" aria-label="Tabela de Relatório de Transporte">
+      <thead>
+        <tr>
+          <th style="width: 12%;">IDENTIFICAÇÃO</th>
+          <th style="width: 12%;">STATUS</th>
+          <th style="width: 10%;">TURNO</th>
+          <th style="width: 18%;">DATA E HORA DA SAÍDA PA</th>
+          <th style="width: 10%;">PLACA</th>
+          <th style="width: 12%;">TOTAL CARREGADO</th>
+          <th style="width: 15%;">TRANSPORTADORA</th>
+          <th style="width: 11%;">LACRE PA</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <button id="scrollBottomBtn" title="Descer para o final" onclick="scrollToBottom()" aria-label="Descer para o final da tabela">
+    <i class="fas fa-chevron-down"></i>
+  </button>
+
+  <script>
+    let fullData = [];
+
+    google.charts.load("current", { packages: ["corechart"] });
+    google.charts.setOnLoadCallback(loadData);
+
+    function loadData() {
+      const id = "1fb-kWPkOmvQNaUSDum3Rf09IdEyO8_nTtqbGpMTwwus";
+      const sheet = "TRANSPORTE";
+      const query = encodeURIComponent("SELECT C, D, E, G, I, K, L, M");
+      const url = `https://docs.google.com/spreadsheets/d/${id}/gviz/tq?sheet=${sheet}&tq=${query}`;
+
+      fetch(url)
+        .then((res) => res.text())
+        .then((txt) => {
+          const json = txt.match(/google\.visualization\.Query\.setResponse\(([\s\S.*]+)\)/)[1];
+          const data = JSON.parse(json).table;
+          parseData(data);
+          refreshTable();
+        })
+        .catch((err) => console.error(err));
+    }
+
+    function parseGoogleDate(str) {
+      const m = str.match(/Date\((\d+),(\d+),(\d+),(\d+),(\d+),(\d+)\)/);
+      if (!m) return null;
+      const [_, y, mo, d, h, mi, s] = m.map(Number);
+      return new Date(y, mo, d, h, mi, s);
+    }
+
+    function parseData(table) {
+      fullData = table.rows.map((r) =>
+        r.c.map((c) => {
+          if (!c) return "";
+          if (typeof c.v === "string" && c.v.startsWith("Date(")) {
+            const d = parseGoogleDate(c.v);
+            return d ? d : c.v;
+          }
+          return c.v;
+        })
+      );
+    }
+
+    function refreshTable(filter = "") {
+      const tBody = document.querySelector("#dataTable tbody");
+      tBody.innerHTML = "";
+      const f = filter.toLowerCase();
+
+      fullData.forEach((row) => {
+        const text = row
+          .map((v) => (v instanceof Date ? v.toString() : v))
+          .join(" ")
+          .toLowerCase();
+        if (f && !text.includes(f)) return;
+
+        const tr = document.createElement("tr");
+        const status = (row[1] || "").toString().toLowerCase();
+
+        if (status.includes("expedido")) tr.classList.add("status-expedido");
+        else if (status.includes("devolução")) tr.classList.add("status-devolucao");
+        else if (status.includes("em carregamento")) tr.classList.add("status-emcarregamento");
+        else if (status.includes("em doca")) tr.classList.add("status-emdoca");
+        else if (status.includes("insumos")) tr.classList.add("status-insumos");
+
+        row.forEach((val, i) => {
+          const td = document.createElement("td");
+          if (i === 3 && val) {
+            if (val instanceof Date && !isNaN(val)) {
+              const formattedDate = val.toLocaleString("pt-BR", {
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+                hour12: false,
+              });
+              td.textContent = formattedDate;
+            } else {
+              td.textContent = val.toString();
+            }
+          } else {
+            td.textContent = val;
+          }
+          tr.appendChild(td);
+        });
+        tBody.appendChild(tr);
+      });
+    }
+
+    function filterByStatus(status) {
+      document.getElementById("searchInput").value = status;
+      refreshTable(status);
+    }
+
+    function filterAll() {
+      document.getElementById("searchInput").value = "";
+      refreshTable();
+    }
+
+    function scrollToBottom() {
+      window.scrollTo({
+        top: document.body.scrollHeight,
+        behavior: "smooth",
+      });
+    }
+  </script>
+</body>
+</html>
