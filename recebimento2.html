@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CDC - Atualização de Dados</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+  <style>
+    tr.selected {
+      background-color: #e0f2fe !important;
+    }
+    td.status-cell {
+      font-weight: bold;
+    }
+  </style>
+  <script>
+    const sheetID = '1MbhlUShVEn4N9KptmCMxD5fbgdWUpaA6ZcR_7W6guKA';
+    const sheetName = 'Resumo PA-CDC';
+    const range = 'C:P';
+    const scriptURL = 'SUA_URL_WEB_APP_AQUI';
+
+    let selectedRowData = null;
+
+    google.charts.load('current', { packages: ['table'] });
+    google.charts.setOnLoadCallback(loadData);
+
+    function loadData() {
+      const query = new google.visualization.Query(
+        `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?sheet=${sheetName}&range=${range}`
+      );
+      query.send(handleQueryResponse);
+    }
+
+    function getStatusColor(status) {
+      switch ((status || '').trim()) {
+        case 'Em trânsito': return '#E6CFF2';
+        case 'Pátio CDC': return '#B10202';
+        case 'Em Doca': return '#FFCFC9';
+        case 'Em Descarga': return '#FFE5A0';
+        case 'Fim de Descarga': return '#11734B';
+        default: return 'transparent';
+      }
+    }
+
+    function handleQueryResponse(response) {
+      if (response.isError()) {
+        document.getElementById('table-container').innerText = 'Erro ao carregar dados.';
+        return;
+      }
+
+      const data = response.getDataTable();
+      const numRows = data.getNumberOfRows();
+      const last15 = [];
+
+      for (let i = 0; i < numRows; i++) {
+        const uuid = data.getValue(i, 1);
+        const placa = data.getValue(i, 2);
+        const saida = data.getValue(i, 7);
+        const statusPA = data.getValue(i, 5);
+        const statusCDC = data.getValue(i, 8);
+
+        if (uuid && saida) {
+          last15.push({ uuid, placa, saida, statusPA, statusCDC });
+        }
+      }
+
+      last15.sort((a, b) => new Date(a.saida) - new Date(b.saida));
+      const sliced = last15.slice(-15);
+
+      let html = '<table id="data-table" class="min-w-full divide-y divide-gray-200"><thead class="bg-gray-50"><tr><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">UUID</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Placa</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Horário Saída PA</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">STATUS PA</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">STATUS CDC</th></tr></thead><tbody class="bg-white divide-y divide-gray-200">';
+      sliced.forEach((row, index) => {
+        const bgColor = getStatusColor(row.statusCDC);
+        const textColor = (row.statusCDC === "Pátio CDC" || row.statusCDC === "Fim de Descarga") ? 'white' : 'black';
+        html += `<tr onclick="selectRow(this, ${index})" class="hover:bg-gray-50">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${row.uuid}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${row.placa}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${formatarDataHora(row.saida)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${row.statusPA || ''}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm status-cell" style="background-color:${bgColor}; color:${textColor};">${row.statusCDC || ''}</td>
+                 </tr>`;
+      });
+      html += '</tbody></table>';
+
+      document.getElementById('table-container').innerHTML = html;
+      window.rowsData = sliced;
+    }
+
+    function selectRow(tr, index) {
+      const rows = document.querySelectorAll("#data-table tbody tr");
+      rows.forEach(row => row.classList.remove("selected"));
+      tr.classList.add("selected");
+
+      selectedRowData = window.rowsData[index];
+
+      document.getElementById('uuidSelecionado').value = selectedRowData.uuid;
+      document.getElementById('placaSelecionada').value = selectedRowData.placa;
+      document.getElementById('saidaSelecionada').value = formatarDataHora(selectedRowData.saida);
+
+      document.getElementById('uuidSelecionadoSpan').innerText = selectedRowData.uuid;
+      document.getElementById('placaSelecionadaSpan').innerText = selectedRowData.placa;
+      document.getElementById('saidaSelecionadaSpan').innerText = formatarDataHora(selectedRowData.saida);
+      document.getElementById('statusCDCSelecionadoSpan').innerText = selectedRowData.statusCDC || '---';
+
+      document.getElementById('status').value = selectedRowData.statusCDC || '';
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function formatarDataHora(dateStr) {
+      const data = new Date(dateStr);
+      if (isNaN(data)) return '-';
+      const pad = n => n.toString().padStart(2, '0');
+      return `${pad(data.getDate())}/${pad(data.getMonth() + 1)}/${data.getFullYear()} ${pad(data.getHours())}:${pad(data.getMinutes())}:${pad(data.getSeconds())}`;
+    }
+
+    function submitForm(e) {
+      e.preventDefault();
+      if (!selectedRowData) {
+        alert("Por favor, selecione uma linha da tabela antes de enviar.");
+        return;
+      }
+
+      const dados = {
+        uuid: document.getElementById('uuidSelecionado').value,
+        placa: document.getElementById('placaSelecionada').value,
+        saida: document.getElementById('saidaSelecionada').value,
+        status: document.getElementById('status').value,
+        chegada: document.getElementById('chegada').value,
+        lacre: document.getElementById('lacre').value,
+        inicio: document.getElementById('inicio').value,
+        fim: document.getElementById('fim').value,
+        obs: document.getElementById('obs').value
+      };
+
+      fetch(scriptURL, {
+        method: "POST",
+        body: JSON.stringify(dados),
+        headers: {
+          "Content-Type": "application/json"
+        }
+      })
+      .then(response => response.text())
+      .then(result => {
+        alert(result);
+        location.reload();
+      })
+      .catch(error => {
+        console.error("Erro ao enviar:", error);
+        alert("Erro ao enviar dados.");
+      });
+    }
+  </script>
+</head>
+<body class="bg-gray-100 font-sans">
+  <!-- Header -->
+  <header class="bg-blue-800 text-white shadow-md">
+    <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+        <h2><i class="fas fa-file-alt"></i> Relatório de Transporte CDC Baruari</h2>
+      <h1><i class="fas fa-file-alt"></i>CDC - Sistema de Atualização de Dados</h1>
+      <nav>
+        <a href="#" class="text-white hover:underline mx-2">Início</a>
+        <a href="#" class="text-white hover:underline mx-2">Ajuda</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="container mx-auto px-4 py-8">
+    <section class="bg-white rounded-lg shadow-md p-6 mb-8">
+      <h2 class="text-xl font-semibold text-gray-800 mb-4">Formulário: Atualizar Informações do CDC</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <div>
+          <p class="text-sm font-medium text-gray-600">UUID Selecionado: <span id="uuidSelecionadoSpan" class="font-normal">---</span></p>
+          <p class="text-sm font-medium text-gray-600">Placa: <span id="placaSelecionadaSpan" class="font-normal">---</span></p>
+          <p class="text-sm font-medium text-gray-600">Horário Saída PA: <span id="saidaSelecionadaSpan" class="font-normal">---</span></p>
+          <p class="text-sm font-medium text-gray-600">Status CDC Atual: <span id="statusCDCSelecionadoSpan" class="font-normal">---</span></p>
+        </div>
+      </div>
+      <div class="border-t border-gray-200 pt-6">
+        <input type="hidden" id="uuidSelecionado" />
+        <input type="hidden" id="placaSelecionada" />
+        <input type="hidden" id="saidaSelecionada" />
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label for="status" class="block text-sm font-medium text-gray-700">Status CDC</label>
+            <select id="status" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" required>
+              <option value="">Selecione...</option>
+              <option value="Em trânsito">Em trânsito</option>
+              <option value="Pátio CDC">Pátio CDC</option>
+              <option value="Em Doca">Em Doca</option>
+              <option value="Em Descarga">Em Descarga</option>
+              <option value="Fim de Descarga">Fim de Descarga</option>
+            </select>
+          </div>
+          <div>
+            <label for="chegada" class="block text-sm font-medium text-gray-700">Data e Horário Chegada CDC</label>
+            <input type="datetime-local" id="chegada" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" />
+          </div>
+          <div>
+            <label for="lacre" class="block text-sm font-medium text-gray-700">Nº Lacre CDC</label>
+            <input type="text" id="lacre" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" />
+          </div>
+          <div>
+            <label for="inicio" class="block text-sm font-medium text-gray-700">Início Descarga CDC</label>
+            <input type="datetime-local" id="inicio" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" />
+          </div>
+          <div>
+            <label for="fim" class="block text-sm font-medium text-gray-700">Fim Descarga CDC</label>
+            <input type="datetime-local" id="fim" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" />
+          </div>
+          <div class="md:col-span-2">
+            <label for="obs" class="block text-sm font-medium text-gray-700">Observação</label>
+            <textarea id="obs" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"></textarea>
+          </div>
+        </div>
+        <div class="mt-6">
+          <button type="submit" onclick="submitForm(event)" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            Salvar Informações
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section class="bg-white rounded-lg shadow-md p-6">
+      <h2 class="text-xl font-semibold text-gray-800 mb-4">Últimos 15 Registros (Ordenados por Horário de Saída PA - Crescente)</h2>
+      <div id="table-container" class="overflow-x-auto">Carregando...</div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-gray-800 text-white py-4">
+    <div class="container mx-auto px-4 text-center">
+      <p class="text-sm">&copy; 2025 ERICLM. Todos os direitos reservados.</p>
+    </div>
+  </footer>
+</body>
+</html>
