@@ -1,9 +1,49 @@
-<!DOCTYPE html>
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CDC - Atualização de Dados</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
   <style>
@@ -45,7 +85,7 @@
 
     function handleQueryResponse(response) {
       if (response.isError()) {
-        document.getElementById('table-container').innerText = 'Erro ao carregar dados.';
+        document.getElementById('table-container').innerText = `Erro ao carregar dados: ${response.getDetailedMessage()}`;
         return;
       }
 
@@ -54,14 +94,19 @@
       const last15 = [];
 
       for (let i = 0; i < numRows; i++) {
-        const uuid = data.getValue(i, 1);
-        const placa = data.getValue(i, 2);
-        const saida = data.getValue(i, 7);
-        const statusPA = data.getValue(i, 5);
-        const statusCDC = data.getValue(i, 8);
+        const uuid = data.getValue(i, 1); // Column D
+        const placa = data.getValue(i, 2); // Column E
+        const saida = data.getValue(i, 7); // Column J
+        const statusPA = data.getValue(i, 6); // Column I
+        const statusCDC = data.getValue(i, 8); // Column K
+        const chegada = data.getValue(i, 9); // Column L
+        const lacre = data.getValue(i, 10); // Column M
+        const inicio = data.getValue(i, 11); // Column N
+        const fim = data.getValue(i, 12); // Column O
+        const obs = data.getValue(i, 13); // Column P
 
         if (uuid && saida) {
-          last15.push({ uuid, placa, saida, statusPA, statusCDC });
+          last15.push({ uuid, placa, saida, statusPA, statusCDC, chegada, lacre, inicio, fim, obs });
         }
       }
 
@@ -72,7 +117,7 @@
       sliced.forEach((row, index) => {
         const bgColor = getStatusColor(row.statusCDC);
         const textColor = (row.statusCDC === "Pátio CDC" || row.statusCDC === "Fim de Descarga") ? 'white' : 'black';
-        html += `<tr onclick="selectRow(this, ${index})" class="hover:bg-gray-50">
+        html += `<tr tabindex="0" onclick="selectRow(this, ${index})" onkeydown="if(event.key === 'Enter') selectRow(this, ${index})" class="hover:bg-gray-50">
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${row.uuid}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${row.placa}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${formatarDataHora(row.saida)}</td>
@@ -96,22 +141,43 @@
       document.getElementById('uuidSelecionado').value = selectedRowData.uuid;
       document.getElementById('placaSelecionada').value = selectedRowData.placa;
       document.getElementById('saidaSelecionada').value = formatarDataHora(selectedRowData.saida);
+      document.getElementById('status').value = selectedRowData.statusCDC || '';
+      document.getElementById('chegada').value = formatarDataHoraISO(selectedRowData.chegada) || '';
+      document.getElementById('lacre').value = selectedRowData.lacre || '';
+      document.getElementById('inicio').value = formatarDataHoraISO(selectedRowData.inicio) || '';
+      document.getElementById('fim').value = formatarDataHoraISO(selectedRowData.fim) || '';
+      document.getElementById('obs').value = selectedRowData.obs || '';
 
       document.getElementById('uuidSelecionadoSpan').innerText = selectedRowData.uuid;
       document.getElementById('placaSelecionadaSpan').innerText = selectedRowData.placa;
       document.getElementById('saidaSelecionadaSpan').innerText = formatarDataHora(selectedRowData.saida);
       document.getElementById('statusCDCSelecionadoSpan').innerText = selectedRowData.statusCDC || '---';
 
-      document.getElementById('status').value = selectedRowData.statusCDC || '';
-
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function formatarDataHora(dateStr) {
-      const data = new Date(dateStr);
-      if (isNaN(data)) return '-';
-      const pad = n => n.toString().padStart(2, '0');
-      return `${pad(data.getDate())}/${pad(data.getMonth() + 1)}/${data.getFullYear()} ${pad(data.getHours())}:${pad(data.getMinutes())}:${pad(data.getSeconds())}`;
+      try {
+        const data = new Date(dateStr);
+        if (isNaN(data)) return '-';
+        const pad = n => n.toString().padStart(2, '0');
+        return `${pad(data.getDate())}/${pad(data.getMonth() + 1)}/${data.getFullYear()} ${pad(data.getHours())}:${pad(data.getMinutes())}:${pad(data.getSeconds())}`;
+      } catch (e) {
+        console.warn(`Invalid date format: ${dateStr}`);
+        return '-';
+      }
+    }
+
+    function formatarDataHoraISO(dateStr) {
+      try {
+        const data = new Date(dateStr);
+        if (isNaN(data)) return '';
+        const pad = n => n.toString().padStart(2, '0');
+        return `${data.getFullYear()}-${pad(data.getMonth() + 1)}-${pad(data.getDate())}T${pad(data.getHours())}:${pad(data.getMinutes())}`;
+      } catch (e) {
+        console.warn(`Invalid date format for ISO: ${dateStr}`);
+        return '';
+      }
     }
 
     function submitForm(e) {
@@ -133,6 +199,24 @@
         obs: document.getElementById('obs').value
       };
 
+      // Validate required fields
+      if (!dados.status) {
+        alert("Por favor, selecione um status CDC.");
+        return;
+      }
+      if (!dados.chegada && (dados.status === "Pátio CDC" || dados.status === "Em Doca" || dados.status === "Em Descarga" || dados.status === "Fim de Descarga")) {
+        alert("Por favor, informe a data e horário de chegada para o status selecionado.");
+        return;
+      }
+      if (!dados.inicio && (dados.status === "Em Descarga" || dados.status === "Fim de Descarga")) {
+        alert("Por favor, informe a data e horário de início da descarga.");
+        return;
+      }
+      if (!dados.fim && dados.status === "Fim de Descarga") {
+        alert("Por favor, informe a data e horário de fim da descarga.");
+        return;
+      }
+
       fetch(scriptURL, {
         method: "POST",
         body: JSON.stringify(dados),
@@ -147,8 +231,26 @@
       })
       .catch(error => {
         console.error("Erro ao enviar:", error);
-        alert("Erro ao enviar dados.");
+        alert(`Erro ao enviar dados: ${error.message}`);
       });
+    }
+
+    function clearForm() {
+      selectedRowData = null;
+      document.getElementById('uuidSelecionado').value = '';
+      document.getElementById('placaSelecionada').value = '';
+      document.getElementById('saidaSelecionada').value = '';
+      document.getElementById('status').value = '';
+      document.getElementById('chegada').value = '';
+      document.getElementById('lacre').value = '';
+      document.getElementById('inicio').value = '';
+      document.getElementById('fim').value = '';
+      document.getElementById('obs').value = '';
+      document.getElementById('uuidSelecionadoSpan').innerText = '---';
+      document.getElementById('placaSelecionadaSpan').innerText = '---';
+      document.getElementById('saidaSelecionadaSpan').innerText = '---';
+      document.getElementById('statusCDCSelecionadoSpan').innerText = '---';
+      document.querySelectorAll("#data-table tbody tr").forEach(row => row.classList.remove("selected"));
     }
   </script>
 </head>
@@ -156,7 +258,7 @@
   <!-- Header -->
   <header class="bg-blue-800 text-white shadow-md">
     <div class="container mx-auto px-4 py-4 flex justify-between items-center">
-      <h1><i class="fas fa-file-alt"></i>CDC - Sistema de Atualização de Dados</h1>
+      <h1><i class="fas fa-file-alt"></i> CDC - Sistema de Atualização de Dados</h1>
       <nav>
         <a href="#" class="text-white hover:underline mx-2">Início</a>
         <a href="#" class="text-white hover:underline mx-2">Ajuda</a>
@@ -217,20 +319,31 @@
           <button type="submit" onclick="submitForm(event)" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
             Salvar Informações
           </button>
+          <button type="button" onclick="clearForm()" class="inline-flex items-center px-4 py-2 bg-gray-600 text-white font-medium rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 ml-2">
+            Limpar Formulário
+          </button>
         </div>
       </div>
     </section>
 
     <section class="bg-white rounded-lg shadow-md p-6">
       <h2 class="text-xl font-semibold text-gray-800 mb-4">Últimos 15 Registros (Ordenados por Horário de Saída PA - Crescente)</h2>
-      <div id="table-container" class="overflow-x-auto">Carregando...</div>
+      <div id="table-container" class="overflow-x-auto">
+        <div class="flex justify-center items-center">
+          <svg class="animate-spin h-5 w-5 mr-3 text-blue-600" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+          </svg>
+          Carregando...
+        </div>
+      </div>
     </section>
   </main>
 
   <!-- Footer -->
   <footer class="bg-gray-800 text-white py-4">
     <div class="container mx-auto px-4 text-center">
-      <p class="text-sm">&copy; 2025 ERICLM. Todos os direitos reservados.</p>
+      <p class="text-sm">© 2025 ERICLM. Todos os direitos reservados.</p>
     </div>
   </footer>
 </body>
