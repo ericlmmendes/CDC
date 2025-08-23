@@ -1,43 +1,4 @@
-<script type="text/javascript">
-        var gk_isXlsx = false;
-        var gk_xlsxFileLookup = {};
-        var gk_fileData = {};
-        function filledCell(cell) {
-          return cell !== '' && cell != null;
-        }
-        function loadFileData(filename) {
-        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
-            try {
-                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
-                var firstSheetName = workbook.SheetNames[0];
-                var worksheet = workbook.Sheets[firstSheetName];
-
-                // Convert sheet to JSON to filter blank rows
-                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
-                // Filter out blank rows (rows where all cells are empty, null, or undefined)
-                var filteredData = jsonData.filter(row => row.some(filledCell));
-
-                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
-                var headerRowIndex = filteredData.findIndex((row, index) =>
-                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
-                );
-                // Fallback
-                if (headerRowIndex === -1 || headerRowIndex > 25) {
-                  headerRowIndex = 0;
-                }
-
-                // Convert filtered JSON back to CSV
-                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
-                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
-                return csv;
-            } catch (e) {
-                console.error(e);
-                return "";
-            }
-        }
-        return gk_fileData[filename] || "";
-        }
-        </script><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
@@ -47,6 +8,20 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
   <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+    }
+    body {
+      display: flex;
+      flex-direction: column;
+    }
+    main {
+      flex: 1 0 auto;
+    }
+    footer {
+      flex-shrink: 0;
+    }
     tr.selected {
       background-color: #e0f2fe !important;
     }
@@ -57,7 +32,7 @@
   <script>
     const sheetID = '1MbhlUShVEn4N9KptmCMxD5fbgdWUpaA6ZcR_7W6guKA';
     const sheetName = 'Resumo PA-CDC';
-    const range = 'C:P';
+    const range = 'C:R';
     const scriptURL = 'https://script.google.com/macros/s/AKfycby2MyABU7UoOzL7rC9VAeQegcH_FK9zz1hFT4GyBUNciHE-IxNmP5IQuocw4wap4AZe/exec';
 
     let selectedRowData = null;
@@ -74,11 +49,11 @@
 
     function getStatusColor(status) {
       switch ((status || '').trim()) {
-        case 'Em trânsito': return '#E6CFF2';
-        case 'Pátio CDC': return '#B10202';
-        case 'Em Doca': return '#FFCFC9';
-        case 'Em Descarga': return '#FFE5A0';
-        case 'Fim de Descarga': return '#11734B';
+        case 'Em trânsito': return '#C8A2C8'; // Lilás
+        case 'Pátio CDC': return '#FF0000'; // Vermelha
+        case 'Em Doca': return '#FFA500'; // Laranja
+        case 'Em Descarga': return '#FFFF00'; // Amarela
+        case 'Fim de Descarga': return '#008000'; // Verde
         default: return 'transparent';
       }
     }
@@ -94,33 +69,68 @@
       const last15 = [];
 
       for (let i = 0; i < numRows; i++) {
+        const dataSaida = data.getValue(i, 0); // Column C
         const uuid = data.getValue(i, 1); // Column D
-        const placa = data.getValue(i, 2); // Column E
-        const saida = data.getValue(i, 7); // Column J
+        const placaCavalo = data.getValue(i, 2); // Column E
+        const placaCarreta = data.getValue(i, 3); // Column F
+        const lacrePA = data.getValue(i, 4); // Column G
+        const transportadora = data.getValue(i, 5); // Column H
         const statusPA = data.getValue(i, 6); // Column I
-        const statusCDC = data.getValue(i, 8); // Column K
-        const chegada = data.getValue(i, 9); // Column L
-        const lacre = data.getValue(i, 10); // Column M
-        const inicio = data.getValue(i, 11); // Column N
-        const fim = data.getValue(i, 12); // Column O
-        const obs = data.getValue(i, 13); // Column P
+        const qntPacotes = data.getValue(i, 7); // Column J
+        const horaSaidaPA = data.getValue(i, 8); // Column K
+        const statusCDC = data.getValue(i, 9); // Column L
+        const chegadaCDC = data.getValue(i, 10); // Column M
+        const lacreCDC = data.getValue(i, 11); // Column N
+        const inicioDescarga = data.getValue(i, 12); // Column O
+        const fimDescarga = data.getValue(i, 13); // Column P
+        const observacoes = data.getValue(i, 14); // Column Q
+        const turno = data.getValue(i, 15); // Column R
 
-        if (uuid && saida) {
-          last15.push({ uuid, placa, saida, statusPA, statusCDC, chegada, lacre, inicio, fim, obs });
+        if (uuid && horaSaidaPA) {
+          last15.push({
+            dataSaida,
+            uuid,
+            placaCavalo,
+            placaCarreta,
+            lacrePA,
+            transportadora,
+            statusPA,
+            qntPacotes,
+            horaSaidaPA,
+            statusCDC,
+            chegadaCDC,
+            lacreCDC,
+            inicioDescarga,
+            fimDescarga,
+            observacoes,
+            turno
+          });
         }
       }
 
-      last15.sort((a, b) => new Date(a.saida) - new Date(b.saida));
+      last15.sort((a, b) => new Date(a.horaSaidaPA) - new Date(b.horaSaidaPA));
       const sliced = last15.slice(-15);
 
-      let html = '<table id="data-table" class="min-w-full divide-y divide-gray-200"><thead class="bg-gray-50"><tr><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">UUID</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Placa</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Horário Saída PA</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">STATUS PA</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">STATUS CDC</th></tr></thead><tbody class="bg-white divide-y divide-gray-200">';
+      let html = '<table id="data-table" class="min-w-full divide-y divide-gray-200"><thead class="bg-gray-50"><tr>' +
+        '<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">UUID</th>' +
+        '<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Placa Cavalo</th>' +
+        '<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Placa Carreta</th>' +
+        '<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Transportadora</th>' +
+        '<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Qnt. Pacotes</th>' +
+        '<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Horário Saída PA</th>' +
+        '<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status PA</th>' +
+        '<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status CDC</th>' +
+        '</tr></thead><tbody class="bg-white divide-y divide-gray-200">';
       sliced.forEach((row, index) => {
         const bgColor = getStatusColor(row.statusCDC);
-        const textColor = (row.statusCDC === "Pátio CDC" || row.statusCDC === "Fim de Descarga") ? 'white' : 'black';
+        const textColor = (row.statusCDC === "Pátio CDC" || row.statusCDC === "Em Descarga" || row.statusCDC === "Fim de Descarga") ? 'white' : 'black';
         html += `<tr tabindex="0" onclick="selectRow(this, ${index})" onkeydown="if(event.key === 'Enter') selectRow(this, ${index})" class="hover:bg-gray-50">
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${row.uuid}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${row.placa}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${formatarDataHora(row.saida)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${row.placaCavalo}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${row.placaCarreta || ''}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${row.transportadora || ''}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${row.qntPacotes || ''}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${formatarDataHora(row.horaSaidaPA)}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${row.statusPA || ''}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm status-cell" style="background-color:${bgColor}; color:${textColor};">${row.statusCDC || ''}</td>
                  </tr>`;
@@ -139,18 +149,26 @@
       selectedRowData = window.rowsData[index];
 
       document.getElementById('uuidSelecionado').value = selectedRowData.uuid;
-      document.getElementById('placaSelecionada').value = selectedRowData.placa;
-      document.getElementById('saidaSelecionada').value = formatarDataHora(selectedRowData.saida);
+      document.getElementById('placaCavaloSelecionada').value = selectedRowData.placaCavalo;
+      document.getElementById('placaCarretaSelecionada').value = selectedRowData.placaCarreta || '';
+      document.getElementById('transportadoraSelecionada').value = selectedRowData.transportadora || '';
+      document.getElementById('qntPacotesSelecionada').value = selectedRowData.qntPacotes || '';
+      document.getElementById('lacrePASelecionada').value = selectedRowData.lacrePA || '';
+      document.getElementById('saidaSelecionada').value = formatarDataHora(selectedRowData.horaSaidaPA);
       document.getElementById('status').value = selectedRowData.statusCDC || '';
-      document.getElementById('chegada').value = formatarDataHoraISO(selectedRowData.chegada) || '';
-      document.getElementById('lacre').value = selectedRowData.lacre || '';
-      document.getElementById('inicio').value = formatarDataHoraISO(selectedRowData.inicio) || '';
-      document.getElementById('fim').value = formatarDataHoraISO(selectedRowData.fim) || '';
-      document.getElementById('obs').value = selectedRowData.obs || '';
+      document.getElementById('chegada').value = formatarDataHoraISO(selectedRowData.chegadaCDC) || '';
+      document.getElementById('lacre').value = selectedRowData.lacreCDC || '';
+      document.getElementById('inicio').value = formatarDataHoraISO(selectedRowData.inicioDescarga) || '';
+      document.getElementById('fim').value = formatarDataHoraISO(selectedRowData.fimDescarga) || '';
+      document.getElementById('obs').value = selectedRowData.observacoes || '';
+      document.getElementById('turno').value = selectedRowData.turno || '';
 
       document.getElementById('uuidSelecionadoSpan').innerText = selectedRowData.uuid;
-      document.getElementById('placaSelecionadaSpan').innerText = selectedRowData.placa;
-      document.getElementById('saidaSelecionadaSpan').innerText = formatarDataHora(selectedRowData.saida);
+      document.getElementById('placaCavaloSelecionadaSpan').innerText = selectedRowData.placaCavalo;
+      document.getElementById('placaCarretaSelecionadaSpan').innerText = selectedRowData.placaCarreta || '---';
+      document.getElementById('transportadoraSelecionadaSpan').innerText = selectedRowData.transportadora || '---';
+      document.getElementById('qntPacotesSelecionadaSpan').innerText = selectedRowData.qntPacotes || '---';
+      document.getElementById('saidaSelecionadaSpan').innerText = formatarDataHora(selectedRowData.horaSaidaPA);
       document.getElementById('statusCDCSelecionadoSpan').innerText = selectedRowData.statusCDC || '---';
 
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -188,15 +206,21 @@
       }
 
       const dados = {
+        dataSaida: formatarDataHora(selectedRowData.dataSaida),
         uuid: document.getElementById('uuidSelecionado').value,
-        placa: document.getElementById('placaSelecionada').value,
-        saida: document.getElementById('saidaSelecionada').value,
+        placaCavalo: document.getElementById('placaCavaloSelecionada').value,
+        placaCarreta: document.getElementById('placaCarretaSelecionada').value,
+        lacrePA: document.getElementById('lacrePASelecionada').value,
+        transportadora: document.getElementById('transportadoraSelecionada').value,
+        qntPacotes: document.getElementById('qntPacotesSelecionada').value,
+        horaSaidaPA: document.getElementById('saidaSelecionada').value,
         status: document.getElementById('status').value,
         chegada: document.getElementById('chegada').value,
         lacre: document.getElementById('lacre').value,
         inicio: document.getElementById('inicio').value,
         fim: document.getElementById('fim').value,
-        obs: document.getElementById('obs').value
+        obs: document.getElementById('obs').value,
+        turno: document.getElementById('turno').value
       };
 
       // Validate required fields
@@ -238,7 +262,11 @@
     function clearForm() {
       selectedRowData = null;
       document.getElementById('uuidSelecionado').value = '';
-      document.getElementById('placaSelecionada').value = '';
+      document.getElementById('placaCavaloSelecionada').value = '';
+      document.getElementById('placaCarretaSelecionada').value = '';
+      document.getElementById('transportadoraSelecionada').value = '';
+      document.getElementById('qntPacotesSelecionada').value = '';
+      document.getElementById('lacrePASelecionada').value = '';
       document.getElementById('saidaSelecionada').value = '';
       document.getElementById('status').value = '';
       document.getElementById('chegada').value = '';
@@ -246,8 +274,12 @@
       document.getElementById('inicio').value = '';
       document.getElementById('fim').value = '';
       document.getElementById('obs').value = '';
+      document.getElementById('turno').value = '';
       document.getElementById('uuidSelecionadoSpan').innerText = '---';
-      document.getElementById('placaSelecionadaSpan').innerText = '---';
+      document.getElementById('placaCavaloSelecionadaSpan').innerText = '---';
+      document.getElementById('placaCarretaSelecionadaSpan').innerText = '---';
+      document.getElementById('transportadoraSelecionadaSpan').innerText = '---';
+      document.getElementById('qntPacotesSelecionadaSpan').innerText = '---';
       document.getElementById('saidaSelecionadaSpan').innerText = '---';
       document.getElementById('statusCDCSelecionadoSpan').innerText = '---';
       document.querySelectorAll("#data-table tbody tr").forEach(row => row.classList.remove("selected"));
@@ -273,14 +305,21 @@
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         <div>
           <p class="text-sm font-medium text-gray-600">UUID Selecionado: <span id="uuidSelecionadoSpan" class="font-normal">---</span></p>
-          <p class="text-sm font-medium text-gray-600">Placa: <span id="placaSelecionadaSpan" class="font-normal">---</span></p>
+          <p class="text-sm font-medium text-gray-600">Placa Cavalo: <span id="placaCavaloSelecionadaSpan" class="font-normal">---</span></p>
+          <p class="text-sm font-medium text-gray-600">Placa Carreta: <span id="placaCarretaSelecionadaSpan" class="font-normal">---</span></p>
+          <p class="text-sm font-medium text-gray-600">Transportadora: <span id="transportadoraSelecionadaSpan" class="font-normal">---</span></p>
+          <p class="text-sm font-medium text-gray-600">Quantidade de Pacotes: <span id="qntPacotesSelecionadaSpan" class="font-normal">---</span></p>
           <p class="text-sm font-medium text-gray-600">Horário Saída PA: <span id="saidaSelecionadaSpan" class="font-normal">---</span></p>
           <p class="text-sm font-medium text-gray-600">Status CDC Atual: <span id="statusCDCSelecionadoSpan" class="font-normal">---</span></p>
         </div>
       </div>
       <div class="border-t border-gray-200 pt-6">
         <input type="hidden" id="uuidSelecionado" />
-        <input type="hidden" id="placaSelecionada" />
+        <input type="hidden" id="placaCavaloSelecionada" />
+        <input type="hidden" id="placaCarretaSelecionada" />
+        <input type="hidden" id="transportadoraSelecionada" />
+        <input type="hidden" id="qntPacotesSelecionada" />
+        <input type="hidden" id="lacrePASelecionada" />
         <input type="hidden" id="saidaSelecionada" />
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
@@ -309,6 +348,10 @@
           <div>
             <label for="fim" class="block text-sm font-medium text-gray-700">Fim Descarga CDC</label>
             <input type="datetime-local" id="fim" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" />
+          </div>
+          <div>
+            <label for="turno" class="block text-sm font-medium text-gray-700">Turno</label>
+            <input type="text" id="turno" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" />
           </div>
           <div class="md:col-span-2">
             <label for="obs" class="block text-sm font-medium text-gray-700">Observação</label>
