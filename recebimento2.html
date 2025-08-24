@@ -49,13 +49,23 @@
 
     function getStatusColor(status) {
       switch ((status || '').trim()) {
-        case 'Em trânsito': return '#C8A2C8'; // Lilás
-        case 'Pátio CDC': return '#FF0000'; // Vermelha
+        case 'Em Trânsito': return '#7B68EE'; // Lilás
+        case 'Pátio CDC': return '#DC143C'; // Vermelha
         case 'Em Doca': return '#FFA500'; // Laranja
-        case 'Em Descarga': return '#FFFF00'; // Amarela
-        case 'Fim de Descarga': return '#008000'; // Verde
+        case 'Em Descarga': return '#FFD700'; // Amarela
+        case 'Fim De Descarga': return '#32CD32'; // Verde
         default: return 'transparent';
       }
+    }
+
+    function addValidPacotes(qntPacotes) {
+      if (typeof qntPacotes === 'string' || typeof qntPacotes === 'number') {
+        const parsedPacotes = parseFloat(qntPacotes);
+        if (!isNaN(parsedPacotes) && parsedPacotes > 0) {
+          return parsedPacotes;
+        }
+      }
+      return 0;
     }
 
     function handleQueryResponse(response) {
@@ -67,7 +77,36 @@
       const data = response.getDataTable();
       const numRows = data.getNumberOfRows();
       const last15 = [];
+      let countEmTransito = 0;
+      let countPatioCDC = 0;
+      let countEmDoca = 0;
+      let pacotesPendentes = 0;
 
+      // Process all rows for summary counts (starting from row 11, index 10)
+      for (let i = 10; i < numRows; i++) {
+        const statusCDC = data.getValue(i, 9); // Column L
+        const qntPacotes = data.getValue(i, 7); // Column J
+
+        switch ((statusCDC || '').trim()) {
+          case 'Em Trânsito':
+            countEmTransito++;
+            pacotesPendentes += addValidPacotes(qntPacotes);
+            break;
+          case 'Pátio CDC':
+            countPatioCDC++;
+            pacotesPendentes += addValidPacotes(qntPacotes);
+            break;
+          case 'Em Doca':
+            countEmDoca++;
+            pacotesPendentes += addValidPacotes(qntPacotes);
+            break;
+          case 'Em Descarga':
+            pacotesPendentes += addValidPacotes(qntPacotes);
+            break;
+        }
+      }
+
+      // Process rows for table (only those with valid uuid and horaSaidaPA)
       for (let i = 0; i < numRows; i++) {
         const dataSaida = data.getValue(i, 0); // Column C
         const uuid = data.getValue(i, 1); // Column D
@@ -108,6 +147,13 @@
         }
       }
 
+      // Update summary box
+      document.getElementById('countEmTransito').innerText = countEmTransito;
+      document.getElementById('countPatioCDC').innerText = countPatioCDC;
+      document.getElementById('countEmDoca').innerText = countEmDoca;
+      document.getElementById('countPacotesPendentes').innerText = pacotesPendentes.toFixed(0);
+
+      // Sort and slice for table
       last15.sort((a, b) => new Date(a.horaSaidaPA) - new Date(b.horaSaidaPA));
       const sliced = last15.slice(-15);
 
@@ -300,8 +346,30 @@
 
   <!-- Main Content -->
   <main class="container mx-auto px-4 py-8">
+    <div class="summary-box mb-8">
+      <h2 class="text-xl font-semibold text-gray-800 mb-4"><i class="fas fa-chart-bar mr-2"></i>Resumo</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="p-4 bg-purple-50 rounded-lg">
+          <p class="text-sm text-gray-600">Veículo em Trânsito</p>
+          <p id="countEmTransito" class="text-5xl font-bold text-purple-600">0</p>
+        </div>
+        <div class="p-4 bg-red-50 rounded-lg">
+          <p class="text-sm text-gray-600">Veículo em Pátio CDC</p>
+          <p id="countPatioCDC" class="text-5xl font-bold text-red-600">0</p>
+        </div>
+        <div class="p-4 bg-orange-50 rounded-lg">
+          <p class="text-sm text-gray-600">Veículo em Doca</p>
+          <p id="countEmDoca" class="text-5xl font-bold text-orange-600">0</p>
+        </div>
+        <div class="p-4 bg-yellow-50 rounded-lg">
+          <p class="text-sm text-gray-600">Pacotes Pendente Descarga</p>
+          <p id="countPacotesPendentes" class="text-5xl font-bold text-yellow-600">0</p>
+        </div>
+      </div>
+    </div>
+
     <section class="bg-white rounded-lg shadow-md p-6 mb-8">
-      <h2 class="text-xl font-semibold text-gray-800 mb-4">Formulário: Atualizar Informações do CDC</h2>
+      <h2 class="text-xl font-semibold text-gray-800 mb-4">Carreta PA / CDC</h2>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         <div>
           <p class="text-sm font-medium text-gray-600">UUID Selecionado: <span id="uuidSelecionadoSpan" class="font-normal">---</span></p>
@@ -326,7 +394,7 @@
             <label for="status" class="block text-sm font-medium text-gray-700">Status CDC</label>
             <select id="status" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" required>
               <option value="">Selecione...</option>
-              <option value="Em trânsito">Em trânsito</option>
+              <option value="Em Trânsito">Em Trânsito</option>
               <option value="Pátio CDC">Pátio CDC</option>
               <option value="Em Doca">Em Doca</option>
               <option value="Em Descarga">Em Descarga</option>
@@ -370,7 +438,7 @@
     </section>
 
     <section class="bg-white rounded-lg shadow-md p-6">
-      <h2 class="text-xl font-semibold text-gray-800 mb-4">Últimos 15 Registros (Ordenados por Horário de Saída PA - Crescente)</h2>
+      <h2 class="text-xl font-semibold text-gray-800 mb-4">Últimos 15 Registros (Ordenados por Horário de Saída PA)</h2>
       <div id="table-container" class="overflow-x-auto">
         <div class="flex justify-center items-center">
           <svg class="animate-spin h-5 w-5 mr-3 text-blue-600" viewBox="0 0 24 24">
