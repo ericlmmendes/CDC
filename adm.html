@@ -1,206 +1,313 @@
+
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manoel G F M</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <meta name="description" content="Dashboard de acesso rápido para ferramentas administrativas de Manoel G F M - ADM">
+    <title>Acesso Rápido - Manoel G F M - ADM</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #1a1a2e;
-            color: #fff;
-            margin: 0;
-            padding: 20px;
-            line-height: 1.6;
+        /* Reset compacto e estilos base otimizados */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            line-height: 1.6; color: #333; background: #f4f4f4; 
+            overflow-x: hidden; 
         }
-        .header {
-            text-align: center;
-            margin-bottom: 20px;
+        /* Header compacto com gradiente e animação */
+        header { 
+            background: linear-gradient(135deg, #007bff, #0056b3); 
+            color: white; text-align: center; padding: 20px; 
+            position: relative; box-shadow: 0 2px 10px rgba(0,123,255,0.3); 
         }
-        .container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            max-width: 1200px;
-            margin: 0 auto;
+        header::before { 
+            content: '\f0e1'; font-family: 'Font Awesome 6 Free'; 
+            font-weight: 900; font-size: clamp(2rem, 5vw, 3rem); 
+            display: block; margin-bottom: 10px; 
+            animation: fadeInDown 0.8s ease-out; 
         }
-        .section {
-            background-color: #162447;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-            transition: transform 0.2s;
+        h1 { 
+            font-size: clamp(1.4rem, 4vw, 1.8rem); 
+            animation: fadeInDown 0.8s ease-out 0.3s both; 
         }
-        .section:hover {
-            transform: translateY(-5px);
+        @keyframes fadeInDown { 
+            from { opacity: 0; transform: translateY(-20px); } 
+            to { opacity: 1; transform: translateY(0); } 
         }
-        .section h2 {
-            margin-top: 0;
-            font-size: 1.3em;
-            color: #0d6efd;
-            border-bottom: 2px solid #0d6efd;
-            padding-bottom: 5px;
+        /* Container principal: flexível e centralizado */
+        .container { 
+            max-width: 1400px; margin: 0 auto; padding: 0 10px; 
         }
-        .button {
-            display: block;
-            width: 100%;
-            padding: 12px;
-            margin: 8px 0;
-            background-color: #0d6efd;
-            color: #fff;
-            text-align: center;
-            text-decoration: none;
-            border: none;
-            border-radius: 5px;
-            font-size: 1em;
-            cursor: pointer;
-            transition: background-color 0.3s;
+        /* Seções: fundo sutil, espaçamento adaptável */
+        .section { 
+            margin: 20px 0; background: rgba(255,255,255,0.6); 
+            border-radius: 12px; padding: 15px; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05); 
         }
-        .button:hover {
-            background-color: #0056b3;
+        h2 { 
+            color: #007bff; margin: 0 0 15px 0; text-align: center; 
+            border-bottom: 2px solid #007bff; padding-bottom: 8px; 
+            font-size: clamp(1.2rem, 3vw, 1.6rem); 
+            animation: fadeInUp 0.8s ease-out; 
         }
-        form {
-            margin: 8px 0;
+        @keyframes fadeInUp { 
+            from { opacity: 0; transform: translateY(20px); } 
+            to { opacity: 1; transform: translateY(0); } 
         }
-
-        /* Media Queries para responsividade */
-        @media (max-width: 768px) {
-            body {
-                padding: 10px;
-            }
-            .container {
-                grid-template-columns: 1fr;
-            }
-            .section {
-                padding: 15px;
-            }
-            .button {
-                font-size: 0.95em;
-                padding: 10px;
-            }
+        /* Grid responsivo: adapta a qualquer tela com auto-fit */
+        .cards-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); 
+            gap: 15px; 
         }
-        @media (max-width: 480px) {
-            .header h1 {
-                font-size: 1.5em;
-            }
-            .section h2 {
-                font-size: 1.1em;
-            }
+        /* Cards compactos e animados */
+        .card { 
+            background: white; border-radius: 10px; 
+            box-shadow: 0 3px 12px rgba(0,0,0,0.08); 
+            overflow: hidden; transition: all 0.3s ease; 
+            text-decoration: none; color: inherit; display: block; 
+            animation: fadeInScale 0.6s ease-out both; 
         }
+        .cards-grid .card:nth-child(n) { animation-delay: calc(0.1s * var(--order, 1)); }
+        .card:nth-child(1n) { --order: 1; }
+        .card:nth-child(2n) { --order: 2; }
+        .card:nth-child(3n) { --order: 3; }
+        .card:nth-child(4n) { --order: 4; }
+        .card:nth-child(5n) { --order: 5; }
+        .card:nth-child(6n) { --order: 6; }
+        @keyframes fadeInScale { 
+            from { opacity: 0; transform: scale(0.95) translateY(15px); } 
+            to { opacity: 1; transform: scale(1) translateY(0); } 
+        }
+        .card:hover { 
+            transform: translateY(-5px) scale(1.01); 
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15); 
+        }
+        /* Ícone: gradiente compacto */
+        .card-icon { 
+            background: linear-gradient(135deg, #007bff, #283da7); 
+            color: white; padding: 15px; text-align: center; 
+            font-size: clamp(1.8rem, 4vw, 2.2rem); 
+            transition: all 0.3s ease; 
+        }
+        .card:hover .card-icon { 
+            background: linear-gradient(135deg, #0056b3, #283da7); 
+            transform: rotate(3deg); 
+        }
+        /* Conteúdo do card: compacto e visível por padrão */
+        .card-content { 
+            padding: 15px; text-align: center; 
+        }
+        .card-name { 
+            font-size: clamp(1rem, 2.5vw, 1.2rem); 
+            font-weight: bold; color: #007bff; 
+            margin-bottom: 5px; transition: all 0.3s ease; 
+        }
+        .card:hover .card-name { color: #0056b3; transform: translateY(-1px); }
+        .card-description { 
+            font-size: clamp(0.8rem, 2vw, 0.9rem); 
+            color: #666; line-height: 1.4; 
+            transition: color 0.3s ease; 
+        }
+        .card:hover .card-description { color: #555; }
+        /* Responsividade aprimorada: breakpoints múltiplos */
+        @media (max-width: 1200px) { 
+            .cards-grid { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; } 
+            .container { padding: 0 15px; } 
+        }
+        @media (max-width: 768px) { 
+            .cards-grid { 
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+                gap: 10px; 
+            } 
+            .section { padding: 10px; margin: 15px 0; } 
+            header { padding: 15px; } 
+        }
+        @media (max-width: 480px) { 
+            .cards-grid { 
+                grid-template-columns: 1fr; 
+                gap: 8px; 
+            } 
+            .card-icon { padding: 12px; } 
+            .card-content { padding: 12px; } 
+            .container { padding: 0 8px; } 
+            h2 { margin-bottom: 10px; padding-bottom: 5px; } 
+        }
+        /* Footer compacto */
+        footer { 
+            text-align: center; padding: 15px; 
+            background: linear-gradient(135deg, #007bff, #0056b3); 
+            color: white; margin-top: 20px; 
+            font-size: clamp(0.8rem, 2vw, 0.9rem); 
+            animation: fadeInUp 0.8s ease-out 0.5s both; 
+        }
+        /* Melhoria: Suavização geral de scroll para navegação fluida */
+        html { scroll-behavior: smooth; }
     </style>
 </head>
 <body>
-    <div class="header">
+    <header>
         <h1>Manoel G F M - ADM</h1>
-    </div>
+    </header>
+    
     <div class="container">
         <div class="section">
             <h2>Relatório</h2>
-            <form action="https://dc.imile.com/#/DCoperation/ScanQueryNew/ScanQueryArrival" method="get" target="_blank"><button type="submit" class="button">Chegada</button></form>
-            <form action="https://dc.imile.com/#/DeviceManagement/DCSortingMachineManagement/SortingDataWaybill" method="get" target="_blank"><button type="submit" class="button">Máquina de Classificação</button></form>
-            <form action="https://dc.imile.com/#/DCoperation/ScanQueryNew/ScanQueryLoadingScan" method="get" target="_blank"><button type="submit" class="button">LoadingScan</button></form>
-            <form action="https://dc.imile.com/?#/DCoperation/ScanQueryNew/ScanQueryConsolidateBag" method="get" target="_blank"><button type="submit" class="button">ConsolidaBag</button></form>
-            <form action="https://dc.imile.com/#/DCoperation/ScanQueryNew/ScanQueryDeparture" method="get" target="_blank"><button type="submit" class="button">Partida</button></form>
-        </div>
-        <div class="section">
-            <h2>Login e Etiquetas</h2>
-            <form action="https://dc.imile.com/#/DCBasicInfo/DCAuthorityManagement/StuffManagement" method="get" target="_blank"><button type="submit" class="button">Login para PDA</button></form>
-            <form action="https://dc.imile.com/#/DCoperation/DCOperationmanagement/dsConsolidateScan" method="get" target="_blank"><button type="submit" class="button">Etiqueta PDA</button></form>
-            <h2>Controle Carretas</h2>
-            <form action="https://dc.imile.com/#/TransportManageDC/DCTransportMonitor/transportMonitorSegmentReport" method="get" target="_blank"><button type="submit" class="button">Verificação Carreta</button></form>
-            <form action="https://dc.imile.com/#/DCoperation/DCScanmanagement/ScanQuery" method="get" target="_blank"><button type="submit" class="button">Verificação de Descarga</button></form>
-            <form action="https://docs.google.com/spreadsheets/d/1MbhlUShVEn4N9KptmCMxD5fbgdWUpaA6ZcR_7W6guKA/edit?gid=487606796#gid=487606796" method="get" target="_blank"><button type="submit" class="button">Controle de Descarrega / Recebimento</button></form>
-            <form action="https://oc.imile.com/#/CenterOperation/ScanManagement/ScanQuery?listType=CarLock" method="get" target="_blank"><button type="submit" class="button">D2D Drop</button></form>
-        </div>
-        <div class="section">
-            <h2>Expedição</h2>
-            <form action="https://dc.imile.com/#/DCoperation/DCOperationmanagement/loadingScan" method="get" target="_blank"><button type="submit" class="button">Notas / LoadingScan</button></form>
-            <form action="https://dc.imile.com/#/DCFinance/MDFeManagement" method="get" target="_blank"><button type="submit" class="button">MDFe</button></form>
-            <form action="https://dc.imile.com/#/TransportManageDC/DCTransportMonitor/transportedGoodsValueMonitoring" method="get" target="_blank"><button type="submit" class="button">Monitor de Transporte</button></form>
-        </div>
-        <div class="section">
-            <h2>Acesso Rápido</h2>
-            <form action="https://docs.google.com/spreadsheets/d/1HF92DC0X1301vyquRkgRegQwkcXyPzcdEaAQe3SQEF4/edit?gid=1290737513#gid=1290737513" method="get" target="_blank"><button type="submit" class="button">Controle de Expedição</button></form>
-            <form action="https://docs.google.com/spreadsheets/d/1pcpj1VUwHIZNjL-qOpVS1apxMo2e_KxYFlJ8xF4rLAY/edit?gid=0#gid=0" method="get" target="_blank"><button type="submit" class="button">Headcount de CDC</button></form>
-            <form action="https://ericlmmendes.github.io/D2D/" method="get" target="_blank"><button type="submit" class="button">D2D - Fila </button></form>
-            <form action="https://ericlmmendes.github.io/GCB/" method="get" target="_blank"><button type="submit" class="button">GCB</button></form>
-            <form action="https://ericlmmendes.github.io/COA/" method="get" target="_blank"><button type="submit" class="button">COA</button></form>
-            <form action="https://ericlmmendes.github.io/BloqueioCDC/" method="get" target="_blank"><button type="submit" class="button">SB</button></form>
-        </div>
-        <div class="section">
-            <!-- Headcount Form -->
-            <div class="bg-white p-6 rounded-lg shadow-lg text-black">
-                <h2 class="text-2xl font-bold mb-4">Registro de Headcount</h2>
-                <form id="headcountForm">
-                    <div class="mb-4">
-                        <label for="date" class="block text-sm font-medium text-gray-700">Data</label>
-                        <input type="text" id="date" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" readonly>
+            <div class="cards-grid">
+                <a href="https://dc.imile.com/#/DCoperation/ScanQueryNew/ScanQueryArrival" target="_blank" class="card">
+                    <div class="card-icon"><i class="fas fa-truck-arrival"></i></div>
+                    <div class="card-content">
+                        <div class="card-name">Chegada</div>
+                        <div class="card-description">Relatório de chegada de mercadorias no centro de distribuição.</div>
                     </div>
-                    <div class="mb-4">
-                        <label for="turno" class="block text-sm font-medium text-gray-700">Turno</label>
-                        <select id="turno" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" required>
-                            <option value="T1">T1</option>
-                            <option value="T2">T2</option>
-                            <option value="T3">T3</option>
-                        </select>
+                </a>
+                <a href="https://dc.imile.com/#/DeviceManagement/DCSortingMachineManagement/SortingDataWaybill" target="_blank" class="card">
+                    <div class="card-icon"><i class="fas fa-cogs"></i></div>
+                    <div class="card-content">
+                        <div class="card-name">Máquina de Classificação</div>
+                        <div class="card-description">Gerenciamento e dados de classificação automática de pacotes.</div>
                     </div>
-                    <div class="mb-4">
-                        <label for="tercerizado" class="block text-sm font-medium text-gray-700">Tercerizado (长期工)</label>
-                        <input type="number" id="tercerizado" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" min="0" required>
+                </a>
+                <a href="https://dc.imile.com/#/DCoperation/ScanQueryNew/ScanQueryLoadingScan" target="_blank" class="card">
+                    <div class="card-icon"><i class="fas fa-shipping-fast"></i></div>
+                    <div class="card-content">
+                        <div class="card-name">LoadingScan</div>
+                        <div class="card-description">Consulta de scans para processo de carregamento.</div>
                     </div>
-                    <div class="mb-4">
-                        <label for="diarista" class="block text-sm font-medium text-gray-700">Diarista (临时工)</label>
-                        <input type="number" id="diarista" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" min="0" required>
+                </a>
+                <a href="https://dc.imile.com/?#/DCoperation/ScanQueryNew/ScanQueryConsolidateBag" target="_blank" class="card">
+                    <div class="card-icon"><i class="fas fa-boxes"></i></div>
+                    <div class="card-content">
+                        <div class="card-name">ConsolidaBag</div>
+                        <div class="card-description">Relatório de consolidação de bags e pacotes.</div>
                     </div>
-                    <div class="mb-4">
-                        <label for="headcount" class="block text-sm font-medium text-gray-700">Headcount</label>
-                        <input type="number" id="headcount" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" readonly>
+                </a>
+                <a href="https://dc.imile.com/#/DCoperation/ScanQueryNew/ScanQueryDeparture" target="_blank" class="card">
+                    <div class="card-icon"><i class="fas fa-sign-out-alt"></i></div>
+                    <div class="card-content">
+                        <div class="card-name">Partida</div>
+                        <div class="card-description">Relatório de partidas e envios de veículos.</div>
                     </div>
-                    <button type="button" id="sendWhatsApp" class="w-full bg-blue-500 text-white p-4 rounded-md hover:bg-blue-600">Enviar para WhatsApp</button>
-                </form>
-                <p id="formMessage" class="text-green-500 text-sm mt-4 hidden">Relatório preparado com sucesso!</p>
-                <p id="formError" class="text-red-500 text-sm mt-4 hidden">Erro ao preparar relatório.</p>
+                </a>
             </div>
         </div>
-    </div>
-    <script>
-        // Definir data atual no formato AAAA-MM-DD
-        const today = new Date();
-        const year = today.getFullYear();
-        const month = String(today.getMonth() + 1).padStart(2, '0');
-        const day = String(today.getDate()).padStart(2, '0');
-        document.getElementById('date').value = `${year}-${month}-${day}`;
-
-        // Calcular contagem de funcionários
-        document.getElementById('tercerizado').addEventListener('input', updateHeadcount);
-        document.getElementById('diarista').addEventListener('input', updateHeadcount);
-
-        function updateHeadcount() {
-            const tercerizado = parseInt(document.getElementById('tercerizado').value) || 0;
-            const diarista = parseInt(document.getElementById('diarista').value) || 0;
-            document.getElementById('headcount').value = tercerizado + diarista;
-        }
-
-        // Envio do WhatsApp
-        document.getElementById('sendWhatsApp').addEventListener('click', function() {
-            const date = document.getElementById('date').value;
-            const turno = document.getElementById('turno').value;
-            const tercerizado = document.getElementById('tercerizado').value;
-            const diarista = document.getElementById('diarista').value;
-            const headcount = document.getElementById('headcount').value;
-
-            if (turno && tercerizado && diarista) {
-                const message = `Data: ${date}\nTurno: ${turno}\nHeadcount: ${headcount} pessoas\nTercerizado 长期工: ${tercerizado} pessoas\nDiarista 临时工: ${diarista} pessoas`;
-                const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
-                window.open(whatsappUrl, '_blank');
-                document.getElementById('formMessage').classList.remove('hidden');
-                setTimeout(() => document.getElementById('formMessage').classList.add('hidden'), 3000);
-            } else {
-                document.getElementById('formError').classList.remove('hidden');
-                setTimeout(() => document.getElementById('formError').classList.add('hidden'), 3000);
-            }
-        });
-    </script>
-</body>
+        
+        <div class="section">
+            <h2>Login e Etiquetas</h2>
+            <div class="cards-grid">
+                <a href="https://dc.imile.com/#/DCBasicInfo/DCAuthorityManagement/StuffManagement" target="_blank" class="card">
+                    <div class="card-icon"><i class="fas fa-user-lock"></i></div>
+                    <div class="card-content">
+                        <div class="card-name">Login para PDA</div>
+                        <div class="card-description">Gerenciamento de acessos e logins para dispositivos PDA.</div>
+                    </div>
+                </a>
+                <a href="https://dc.imile.com/#/DCoperation/DCOperationmanagement/dsConsolidateScan" target="_blank" class="card">
+                    <div class="card-icon"><i class="fas fa-tags"></i></div>
+                    <div class="card-content">
+                        <div class="card-name">Etiqueta PDA</div>
+                        <div class="card-description">Geração e consulta de etiquetas para scanners PDA.</div>
+                    </div>
+                </a>
+            </div>
+            <h2>Controle Carretas</h2>
+            <div class="cards-grid">
+                <a href="https://dc.imile.com/#/TransportManageDC/DCTransportMonitor/transportMonitorSegmentReport" target="_blank" class="card">
+                    <div class="card-icon"><i class="fas fa-truck"></i></div>
+                    <div class="card-content">
+                        <div class="card-name">Verificação Carreta</div>
+                        <div class="card-description">Monitoramento e verificação de carretas no transporte.</div>
+                    </div>
+                </a>
+                <a href="https://dc.imile.com/#/DCoperation/DCScanmanagement/ScanQuery" target="_blank" class="card">
+                    <div class="card-icon"><i class="fas fa-download"></i></div>
+                    <div class="card-content">
+                        <div class="card-name">Verificação de Descarga</div>
+                        <div class="card-description">Consulta de scans para verificação de descarga de carga.</div>
+                    </div>
+                </a>
+                <a href="https://docs.google.com/spreadsheets/d/1MbhlUShVEn4N9KptmCMxD5fbgdWUpaA6ZcR_7W6guKA/edit?gid=487606796#gid=487606796" target="_blank" class="card">
+                    <div class="card-icon"><i class="fas fa-clipboard-list"></i></div>
+                    <div class="card-content">
+                        <div class="card-name">Controle de Descarrega / Recebimento</div>
+                        <div class="card-description">Planilha para controle de descargas e recebimentos.</div>
+                    </div>
+                </a>
+                <a href="https://oc.imile.com/#/CenterOperation/ScanManagement/ScanQuery?listType=CarLock" target="_blank" class="card">
+                    <div class="card-icon"><i class="fas fa-lock"></i></div>
+                    <div class="card-content">
+                        <div class="card-name">D2D Drop</div>
+                        <div class="card-description">Consulta de drops D2D com foco em travas de veículos.</div>
+                    </div>
+                </a>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>Expedição</h2>
+            <div class="cards-grid">
+                <a href="https://dc.imile.com/#/DCoperation/DCOperationmanagement/loadingScan" target="_blank" class="card">
+                    <div class="card-icon"><i class="fas fa-file-invoice"></i></div>
+                    <div class="card-content">
+                        <div class="card-name">Notas / LoadingScan</div>
+                        <div class="card-description">Consulta de notas fiscais e scans de carregamento.</div>
+                    </div>
+                </a>
+                <a href="https://dc.imile.com/#/DCFinance/MDFeManagement" target="_blank" class="card">
+                    <div class="card-icon"><i class="fas fa-file-contract"></i></div>
+                    <div class="card-content">
+                        <div class="card-name">MDFe</div>
+                        <div class="card-description">Gerenciamento de Manifestos Eletrônicos de Documentos Fiscais.</div>
+                    </div>
+                </a>
+                <a href="https://dc.imile.com/#/TransportManageDC/DCTransportMonitor/transportedGoodsValueMonitoring" target="_blank" class="card">
+                    <div class="card-icon"><i class="fas fa-eye"></i></div>
+                    <div class="card-content">
+                        <div class="card-name">Monitor de Transporte</div>
+                        <div class="card-description">Monitoramento em tempo real de bens transportados.</div>
+                    </div>
+                </a>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>Acesso Rápido</h2>
+            <div class="cards-grid">
+                <a href="https://docs.google.com/spreadsheets/d/1HF92DC0X1301vyquRkgRegQwkcXyPzcdEaAQe3SQEF4/edit?gid=1290737513#gid=1290737513" target="_blank" class="card">
+                    <div class="card-icon"><i class="fas fa-shipping-fast"></i></div>
+                    <div class="card-content">
+                        <div class="card-name">Controle de Expedição</div>
+                        <div class="card-description">Planilha para controle operacional de expedições.</div>
+                    </div>
+                </a>
+                <a href="https://docs.google.com/spreadsheets/d/1pcpj1VUwHIZNjL-qOpVS1apxMo2e_KxYFlJ8xF4rLAY/edit?gid=0#gid=0" target="_blank" class="card">
+                    <div class="card-icon"><i class="fas fa-users"></i></div>
+                    <div class="card-content">
+                        <div class="card-name">Headcount de CDC</div>
+                        <div class="card-description">Controle de equipe e headcount no Centro de Distribuição.</div>
+                    </div>
+                </a>
+                <a href="https://ericlmmendes.github.io/D2D/" target="_blank" class="card">
+                    <div class="card-icon"><i class="fas fa-list-ol"></i></div>
+                    <div class="card-content">
+                        <div class="card-name">D2D - Fila</div>
+                        <div class="card-description">Visualização de fila para operações D2D.</div>
+                    </div>
+                </a>
+                <a href="https://ericlmmendes.github.io/GCB/" target="_blank" class="card">
+                    <div class="card-icon"><i class="fas fa-chart-bar"></i></div>
+                    <div class="card-content">
+                        <div class="card-name">GCB</div>
+                        <div class="card-description">Dashboard para relatórios GCB.</div>
+                    </div>
+                </a>
+                <a href="https://ericlmmendes.github.io/COA/" target="_blank" class="card">
+                    <div class="card-icon"><i class="fas fa-check-circle"></i></div>
+                    <div class="card-content">
+                        <div class="card-name">COA</div>
+                        <div class="card-description">Ferramenta de auditoria e conformidade COA.</div>
+                    </div>
+                </a>
+    </body>
 </html>
