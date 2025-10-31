@@ -4,152 +4,216 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel de Acesso Rápido</title>
+    <title>Painel de Acesso Rápido - Sistema EVO</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="shortcut icon" href="./img/mega.png" type="image/x-icon">
     <style>
         body {
-            background-color: #e6ecf0;
             font-family: 'Inter', sans-serif;
         }
     </style>
 </head>
-<body class="text-gray-900">
+<body class="bg-gray-100 text-gray-800 flex flex-col min-h-screen">
 
-    <div class="max-w-screen-xl mx-auto">
+    <!-- Wrapper to grow and push footer down -->
+    <div class="flex-grow">
+        <div class="max-w-screen-xl mx-auto w-full">
 
-        <!-- Header with Background Image and Nav -->
-        <header class="relative">
-            <!-- Background Image -->
-            <div class="h-64 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1454496522488-7a8e488e8606?q=80&w=2070&auto=format&fit=crop');"></div>
-            
-            <!-- Navigation Overlay -->
-            <nav class="absolute top-0 left-0 right-0">
-                <div class="container mx-auto px-6">
-                    <div class="flex items-center justify-between h-16 text-white">
-                        <!-- Left Nav -->
-                        <div class="flex items-center space-x-3">
-                            <i class="fas fa-bolt text-2xl"></i>
-                            <span class="font-bold text-lg">Painel de Acesso Rápido</span>
-                        </div>
-
-                        <!-- Right Nav -->
-                        <div class="flex items-center space-x-4">
-                            <img src="https://via.placeholder.com/32x32/cccccc/FFFFFF?text=MM" alt="Profile" class="h-8 w-8 rounded-full">
-                        </div>
-                    </div>
+            <!-- Header with Background Image and Nav -->
+            <header class="relative">
+                <!-- Background Image -->
+                <div class="h-64 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1454496522488-7a8e488e8606?q=80&w=2070&auto=format&fit=crop');">
+                    <div class="absolute inset-0 bg-black opacity-30"></div>
                 </div>
-            </nav>
-        </header>
+                
+                <!-- Navigation Overlay -->
+                <nav class="absolute top-0 left-0 right-0 z-10">
+                    <div class="container mx-auto px-6">
+                        <div class="flex items-center justify-between h-16 text-white" style="text-shadow: 0 1px 3px rgba(0,0,0,0.5);">
+                            <!-- Left Nav -->
+                            <div class="flex items-center space-x-3">
+                                <i class="fas fa-bolt-lightning text-2xl"></i>
+                                <span class="font-bold text-lg">Painel de Acesso Rápido</span>
+                            </div>
 
-        <!-- Main Content Grid -->
-        <div class="container mx-auto px-6 grid grid-cols-12 gap-6">
-            
-            <!-- Left Column (Profile) -->
-            <aside class="col-span-12 md:col-span-3 -mt-28 z-10">
-                <div class="bg-white rounded-xl p-4 pt-0 text-center shadow-sm">
-                    <div class="relative inline-block">
-                        <img src="./img/Group 21.png" alt="Manoel Mendes" class="h-36 w-36 rounded-full border-4 border-white object-cover -mt-16">
-                    </div>
-                    <div class="mt-2">
-                        <h1 class="text-2xl font-extrabold flex items-center justify-center">
-                            Manoel Mendes
-                            <svg viewBox="0 0 24 24" aria-label="Verified account" class="h-5 w-5 ml-1 text-[#1DA1F2] fill-current"><g><path d="M22.5 12.5c0-1.58-.87-3.05-2.14-3.85.35-.8.59-1.7.59-2.65 0-2.3-1.86-4.15-4.15-4.15-1.93 0-3.56 1.3-4.04 3.1-.5-.16-1.03-.25-1.56-.25s-1.06.09-1.56.25c-.48-1.8-2.1-3.1-4.04-3.1-2.3 0-4.15 1.85-4.15 4.15 0 .95.24 1.85.59 2.65-1.27.8-2.14 2.27-2.14 3.85 0 1.94 1.22 3.6 2.96 4.25-.36.85-.56 1.8-.56 2.75 0 2.3 1.86 4.15 4.15 4.15 1.93 0 3.56-1.3 4.04-3.1.5.16 1.03.25 1.56.25s1.06-.09 1.56.25c.48 1.8 2.1 3.1 4.04 3.1 2.3 0 4.15-1.85-4.15-4.15 0-.95-.2-1.9-.56-2.75 1.74-.65 2.96-2.3 2.96-4.25zm-6.49 5.32c-.5.17-1.02.28-1.51.28s-1.02-.1-1.51-.28c-.81-.28-1.55-.7-2.16-1.25L8.2 14.8l1.3-1.3 2.5 2.5 5.3-5.3 1.3 1.3-5.3 5.31z"></path></g></svg>
-                        </h1>
-                        <p class="text-gray-500 text-sm">@ericlm.evo</p>
-                        <p class="mt-2 text-gray-700 text-sm">Central de sistemas e links úteis.</p>
-                    </div>
-                    <div class="mt-4 text-left text-gray-500 space-y-2 text-sm">
-                        <div class="flex items-center space-x-2">
-                            <i class="fas fa-map-marker-alt w-4 text-center"></i>
-                            <span>Brasil</span>
-                        </div>
-                        <div class="flex items-center space-x-2">
-                            <i class="fas fa-link w-4 text-center"></i>
-                            <a href="#" class="text-[#1DA1F2]">ManoelMendes.co</a>
-                        </div>
-                        <div class="flex items-center space-x-2">
-                            <i class="fas fa-calendar-alt w-4 text-center"></i>
-                            <span>Online desde 2024</span>
+                            <!-- Right Nav -->
+                            <div class="flex items-center space-x-4">
+                                <img src="./img/media-gerada-ia (1).png" alt="Profile" class="h-9 w-9 rounded-full border-2 border-white/80">
+                            </div>
                         </div>
                     </div>
-                </div>
-            </aside>
-            
-            <!-- Center Column (Quick Links) -->
-            <main class="col-span-12 md:col-span-9 mt-4">
-                <div class="bg-white rounded-xl shadow-sm p-4 sm:p-6">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                </nav>
+            </header>
 
-                        <!-- Categoria: Operação -->
-                        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 flex flex-col">
-                            <h3 class="text-lg font-bold mb-4 text-gray-800 border-b pb-2">Operação</h3>
-                            <div class="space-y-3 flex-grow flex flex-col">
-                                <a href="https://dc.imile.com/#/DCoperation/ScanQueryNew/ScanQueryArrival" target="_blank" rel="noopener noreferrer" class="block w-full bg-[#1DA1F2] hover:bg-[#1A91DA] text-white font-semibold py-2 px-4 rounded-lg text-sm text-center transition-colors duration-200">Consulta de Chegada</a>
-                                <a href="https://dc.imile.com/#/DeviceManagement/DCSortingMachineManagement/SortingDataWaybill" target="_blank" rel="noopener noreferrer" class="block w-full bg-[#1DA1F2] hover:bg-[#1A91DA] text-white font-semibold py-2 px-4 rounded-lg text-sm text-center transition-colors duration-200">Máquina de Classificação</a>
-                                <a href="https://dc.imile.com/#/DCoperation/ScanQueryNew/ScanQueryLoadingScan" target="_blank" rel="noopener noreferrer" class="block w-full bg-[#1DA1F2] hover:bg-[#1A91DA] text-white font-semibold py-2 px-4 rounded-lg text-sm text-center transition-colors duration-200">Consulta Carregamento</a>
-                                <a href="https://dc.imile.com/?#/DCoperation/ScanQueryNew/ScanQueryConsolidateBag" target="_blank" rel="noopener noreferrer" class="block w-full bg-[#1DA1F2] hover:bg-[#1A91DA] text-white font-semibold py-2 px-4 rounded-lg text-sm text-center transition-colors duration-200">Consulta Saco Consolidado</a>
-                                <a href="https://dc.imile.com/#/DCoperation/ScanQueryNew/ScanQueryDeparture" target="_blank" rel="noopener noreferrer" class="block w-full bg-[#1DA1F2] hover:bg-[#1A91DA] text-white font-semibold py-2 px-4 rounded-lg text-sm text-center transition-colors duration-200">Consulta de Saída</a>
+            <!-- Main Content Grid -->
+            <div class="container mx-auto px-6 grid grid-cols-12 gap-6 pb-12">
+                
+                <!-- Left Column (Profile) -->
+                <aside class="col-span-12 lg:col-span-3 -mt-32 z-20">
+                    <div class="bg-white rounded-xl p-4 pt-0 text-center shadow-lg">
+                        <div class="relative inline-block">
+                            <img src="./img/Group 21.png" alt="Manoel Mendes" class="h-36 w-36 rounded-full border-4 border-white object-cover -mt-16">
+                        </div>
+                        <div class="mt-2">
+                            <h1 class="text-2xl font-extrabold flex items-center justify-center">
+                                Manoel Mendes
+                                <svg viewBox="0 0 24 24" aria-label="Verified account" class="h-5 w-5 ml-1 text-sky-500 fill-current"><g><path d="M22.5 12.5c0-1.58-.87-3.05-2.14-3.85.35-.8.59-1.7.59-2.65 0-2.3-1.86-4.15-4.15-4.15-1.93 0-3.56 1.3-4.04 3.1-.5-.16-1.03-.25-1.56-.25s-1.06.09-1.56.25c-.48-1.8-2.1-3.1-4.04-3.1-2.3 0-4.15 1.85-4.15 4.15 0 .95.24 1.85.59 2.65-1.27.8-2.14 2.27-2.14 3.85 0 1.94 1.22 3.6 2.96 4.25-.36.85-.56 1.8-.56 2.75 0 2.3 1.86 4.15 4.15 4.15 1.93 0 3.56-1.3 4.04-3.1.5.16 1.03.25 1.56.25s1.06-.09 1.56.25c.48 1.8 2.1 3.1 4.04 3.1 2.3 0 4.15-1.85-4.15-4.15 0-.95-.2-1.9-.56-2.75 1.74-.65 2.96-2.3 2.96-4.25zm-6.49 5.32c-.5.17-1.02.28-1.51.28s-1.02-.1-1.51-.28c-.81-.28-1.55-.7-2.16-1.25L8.2 14.8l1.3-1.3 2.5 2.5 5.3-5.3 1.3 1.3-5.3 5.31z"></path></g></svg>
+                            </h1>
+                            <p class="text-gray-500 text-sm">@ericlm.evo</p>
+                            <p class="mt-2 text-gray-600 text-sm">Central de sistemas e links úteis.</p>
+                        </div>
+                        <div class="mt-6 text-left text-gray-500 space-y-3 text-sm">
+                            <div class="flex items-center space-x-3">
+                                <i class="fas fa-map-marker-alt w-4 text-center text-gray-400"></i>
+                                <span>Brasil</span>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                <i class="fas fa-link w-4 text-center text-gray-400"></i>
+                                <a href="#" class="text-sky-600 hover:underline">ManoelMendes.co</a>
+                            </div>
+                            <div class="flex items-start space-x-3">
+                                <i class="fas fa-calendar-alt w-4 text-center text-gray-400 pt-1"></i>
+                                <div>
+                                    <span class="block">Online desde <span id="online-date"></span></span>
+                                    <div id="clock" class="text-gray-800 font-semibold font-mono text-base tracking-wider mt-1"></div>
+                                </div>
                             </div>
                         </div>
-
-                        <!-- Categoria: Gestão de Acessos -->
-                        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 flex flex-col">
-                            <h3 class="text-lg font-bold mb-4 text-gray-800 border-b pb-2">Gestão de Acessos</h3>
-                            <div class="space-y-3 flex-grow flex flex-col">
-                                <a href="https://dc.imile.com/#/DCBasicInfo/DCAuthorityManagement/StuffManagement" target="_blank" rel="noopener noreferrer" class="block w-full bg-[#1DA1F2] hover:bg-[#1A91DA] text-white font-semibold py-2 px-4 rounded-lg text-sm text-center transition-colors duration-200">Gerenciamento de Equipe</a>
-                                <a href="https://dc.imile.com/#/DCoperation/DCOperationmanagement/dsConsolidateScan" target="_blank" rel="noopener noreferrer" class="block w-full bg-[#1DA1F2] hover:bg-[#1A91DA] text-white font-semibold py-2 px-4 rounded-lg text-sm text-center transition-colors duration-200">Leitura de Consolidação Etiqueta</a>
-                            </div>
-                        </div>
-
-                        <!-- Categoria: Controle de Carretas -->
-                        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 flex flex-col">
-                            <h3 class="text-lg font-bold mb-4 text-gray-800 border-b pb-2">Controle de Carretas</h3>
-                            <div class="space-y-3 flex-grow flex flex-col">
-                                <a href="https://dc.imile.com/#/TransportManageDC/DCTransportMonitor/transportMonitorSegmentReport" target="_blank" rel="noopener noreferrer" class="block w-full bg-[#1DA1F2] hover:bg-[#1A91DA] text-white font-semibold py-2 px-4 rounded-lg text-sm text-center transition-colors duration-200">Relatório de Monitoramento</a>
-                                <a href="https://dc.imile.com/#/DCoperation/DCScanmanagement/ScanQuery" target="_blank" rel="noopener noreferrer" class="block w-full bg-[#1DA1F2] hover:bg-[#1A91DA] text-white font-semibold py-2 px-4 rounded-lg text-sm text-center transition-colors duration-200">Consulta de Leitura</a>
-                                <a href="https://oc.imile.com/#/CenterOperation/ScanManagement/ScanQuery?listType=CarLock" target="_blank" rel="noopener noreferrer" class="block w-full bg-[#1DA1F2] hover:bg-[#1A91DA] text-white font-semibold py-2 px-4 rounded-lg text-sm text-center transition-colors duration-200">Bloqueio de Carreta</a>
-                            </div>
-                        </div>
-
-                        <!-- Categoria: Expedição -->
-                        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 flex flex-col">
-                            <h3 class="text-lg font-bold mb-4 text-gray-800 border-b pb-2">Expedição</h3>
-                            <div class="space-y-3 flex-grow flex flex-col">
-                                <a href="https://dc.imile.com/#/DCoperation/DCOperationmanagement/loadingScan" target="_blank" rel="noopener noreferrer" class="block w-full bg-[#1DA1F2] hover:bg-[#1A91DA] text-white font-semibold py-2 px-4 rounded-lg text-sm text-center transition-colors duration-200">Leitura de Carregamento</a>
-                                <a href="https://dc.imile.com/#/DCFinance/MDFeManagement" target="_blank" rel="noopener noreferrer" class="block w-full bg-[#1DA1F2] hover:bg-[#1A91DA] text-white font-semibold py-2 px-4 rounded-lg text-sm text-center transition-colors duration-200">Gerenciamento MDF-e</a>
-                                <a href="https://dc.imile.com/#/TransportManageDC/DCTransportMonitor/transportedGoodsValueMonitoring" target="_blank" rel="noopener noreferrer" class="block w-full bg-[#1DA1F2] hover:bg-[#1A91DA] text-white font-semibold py-2 px-4 rounded-lg text-sm text-center transition-colors duration-200">Monitoramento de Valor</a>
-                            </div>
-                        </div>
-                        
-                        <!-- Categoria: Acesso Rápido -->
-                        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 flex flex-col">
-                            <h3 class="text-lg font-bold mb-4 text-gray-800 border-b pb-2">Planilhas</h3>
-                            <div class="space-y-3 flex-grow flex flex-col">
-                                <a href="https://docs.google.com/spreadsheets/d/1HF92DC0X1301vyquRkgRegQwkcXyPzcdEaAQe3SQEF4/edit?gid=1290737513#gid=1290737513" target="_blank" rel="noopener noreferrer" class="block w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg text-sm text-center transition-colors duration-200">Acompanhamento 1</a>
-                                <a href="https://docs.google.com/spreadsheets/d/1pcpj1VUwHIZNjL-qOpVS1apxMo2e_KxYFlJ8xF4rLAY/edit?gid=0#gid=0" target="_blank" rel="noopener noreferrer" class="block w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg text-sm text-center transition-colors duration-200">Acompanhamento 2</a>
-                            </div>
-                        </div>
-
-                        <!-- Categoria: Meus Sistemas -->
-                        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 flex flex-col">
-                            <h3 class="text-lg font-bold mb-4 text-gray-800 border-b pb-2">Meus Sistemas</h3>
-                            <div class="space-y-3 flex-grow flex flex-col">
-                                <a href="https://ericlmmendes.github.io/D2D/" target="_blank" rel="noopener noreferrer" class="block w-full bg-gray-700 hover:bg-gray-800 text-white font-semibold py-2 px-4 rounded-lg text-sm text-center transition-colors duration-200">Sistema D2D</a>
-                                <a href="https://ericlmmendes.github.io/GCB/" target="_blank" rel="noopener noreferrer" class="block w-full bg-gray-700 hover:bg-gray-800 text-white font-semibold py-2 px-4 rounded-lg text-sm text-center transition-colors duration-200">Sistema GCB</a>
-                                <a href="https://ericlmmendes.github.io/COA/" target="_blank" rel="noopener noreferrer" class="block w-full bg-gray-700 hover:bg-gray-800 text-white font-semibold py-2 px-4 rounded-lg text-sm text-center transition-colors duration-200">Sistema COA</a>
-                                <a href="https://ericlmmendes.github.io/BloqueioCDC/" target="_blank" rel="noopener noreferrer" class="block w-full bg-gray-700 hover:bg-gray-800 text-white font-semibold py-2 px-4 rounded-lg text-sm text-center transition-colors duration-200">Bloqueio CDC</a>
-                            </div>
-                        </div>
-
                     </div>
-                </div>
-            </main>
+                </aside>
+                
+                <!-- Center Column (Quick Links) -->
+                <main class="col-span-12 lg:col-span-9 mt-4 lg:mt-0">
+                    <div class="bg-white rounded-xl shadow-xl p-4 sm:p-6">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+
+                            <!-- Categoria Card -->
+                            <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 flex flex-col transition-shadow duration-300 hover:shadow-md">
+                                <h3 class="text-lg font-bold mb-4 text-gray-800 border-b border-gray-200 pb-2">Operação</h3>
+                                <div class="space-y-3 flex-grow flex flex-col">
+                                    <a href="https://dc.imile.com/#/DCoperation/ScanQueryNew/ScanQueryArrival" target="_blank" rel="noopener noreferrer" class="block w-full bg-sky-600 hover:bg-sky-700 text-white font-semibold py-2 px-4 rounded-lg text-sm text-center transition-colors duration-200">Consulta de Chegada</a>
+                                    <a href="https://dc.imile.com/#/DeviceManagement/DCSortingMachineManagement/SortingDataWaybill" target="_blank" rel="noopener noreferrer" class="block w-full bg-sky-600 hover:bg-sky-700 text-white font-semibold py-2 px-4 rounded-lg text-sm text-center transition-colors duration-200">Máquina de Classificação</a>
+                                    <a href="https://dc.imile.com/#/DCoperation/ScanQueryNew/ScanQueryLoadingScan" target="_blank" rel="noopener noreferrer" class="block w-full bg-sky-600 hover:bg-sky-700 text-white font-semibold py-2 px-4 rounded-lg text-sm text-center transition-colors duration-200">Consulta Carregamento</a>
+                                    <a href="https://dc.imile.com/?#/DCoperation/ScanQueryNew/ScanQueryConsolidateBag" target="_blank" rel="noopener noreferrer" class="block w-full bg-sky-600 hover:bg-sky-700 text-white font-semibold py-2 px-4 rounded-lg text-sm text-center transition-colors duration-200">Consulta Saco Consolidado</a>
+                                    <a href="https://dc.imile.com/#/DCoperation/ScanQueryNew/ScanQueryDeparture" target="_blank" rel="noopener noreferrer" class="block w-full bg-sky-600 hover:bg-sky-700 text-white font-semibold py-2 px-4 rounded-lg text-sm text-center transition-colors duration-200">Consulta de Saída</a>
+                                </div>
+                            </div>
+
+                            <!-- Categoria Card -->
+                            <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 flex flex-col transition-shadow duration-300 hover:shadow-md">
+                                <h3 class="text-lg font-bold mb-4 text-gray-800 border-b border-gray-200 pb-2">Gestão de Acessos</h3>
+                                <div class="space-y-3 flex-grow flex flex-col">
+                                    <a href="https://dc.imile.com/#/DCBasicInfo/DCAuthorityManagement/StuffManagement" target="_blank" rel="noopener noreferrer" class="block w-full bg-sky-600 hover:bg-sky-700 text-white font-semibold py-2 px-4 rounded-lg text-sm text-center transition-colors duration-200">Gerenciamento de Equipe</a>
+                                    <a href="https://dc.imile.com/#/DCoperation/DCOperationmanagement/dsConsolidateScan" target="_blank" rel="noopener noreferrer" class="block w-full bg-sky-600 hover:bg-sky-700 text-white font-semibold py-2 px-4 rounded-lg text-sm text-center transition-colors duration-200">Leitura de Consolidação</a>
+                                </div>
+                            </div>
+
+                            <!-- Categoria Card -->
+                            <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 flex flex-col transition-shadow duration-300 hover:shadow-md">
+                                <h3 class="text-lg font-bold mb-4 text-gray-800 border-b border-gray-200 pb-2">Controle de Carretas</h3>
+                                <div class="space-y-3 flex-grow flex flex-col">
+                                    <a href="https://dc.imile.com/#/TransportManageDC/DCTransportMonitor/transportMonitorSegmentReport" target="_blank" rel="noopener noreferrer" class="block w-full bg-sky-600 hover:bg-sky-700 text-white font-semibold py-2 px-4 rounded-lg text-sm text-center transition-colors duration-200">Relatório de Monitoramento</a>
+                                    <a href="https://dc.imile.com/#/DCoperation/DCScanmanagement/ScanQuery" target="_blank" rel="noopener noreferrer" class="block w-full bg-sky-600 hover:bg-sky-700 text-white font-semibold py-2 px-4 rounded-lg text-sm text-center transition-colors duration-200">Consulta de Leitura</a>
+                                    <a href="https://oc.imile.com/#/CenterOperation/ScanManagement/ScanQuery?listType=CarLock" target="_blank" rel="noopener noreferrer" class="block w-full bg-sky-600 hover:bg-sky-700 text-white font-semibold py-2 px-4 rounded-lg text-sm text-center transition-colors duration-200">Bloqueio de Carreta</a>
+                                </div>
+                            </div>
+
+                            <!-- Categoria Card -->
+                            <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 flex flex-col transition-shadow duration-300 hover:shadow-md">
+                                <h3 class="text-lg font-bold mb-4 text-gray-800 border-b border-gray-200 pb-2">Expedição</h3>
+                                <div class="space-y-3 flex-grow flex flex-col">
+                                    <a href="https://dc.imile.com/#/DCoperation/DCOperationmanagement/loadingScan" target="_blank" rel="noopener noreferrer" class="block w-full bg-sky-600 hover:bg-sky-700 text-white font-semibold py-2 px-4 rounded-lg text-sm text-center transition-colors duration-200">Leitura de Carregamento</a>
+                                    <a href="https://dc.imile.com/#/DCFinance/MDFeManagement" target="_blank" rel="noopener noreferrer" class="block w-full bg-sky-600 hover:bg-sky-700 text-white font-semibold py-2 px-4 rounded-lg text-sm text-center transition-colors duration-200">Gerenciamento MDF-e</a>
+                                    <a href="https://dc.imile.com/#/TransportManageDC/DCTransportMonitor/transportedGoodsValueMonitoring" target="_blank" rel="noopener noreferrer" class="block w-full bg-sky-600 hover:bg-sky-700 text-white font-semibold py-2 px-4 rounded-lg text-sm text-center transition-colors duration-200">Monitoramento de Valor</a>
+                                </div>
+                            </div>
+                            
+                            <!-- Categoria Card -->
+                            <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 flex flex-col transition-shadow duration-300 hover:shadow-md">
+                                <h3 class="text-lg font-bold mb-4 text-gray-800 border-b border-gray-200 pb-2">Planilhas</h3>
+                                <div class="space-y-3 flex-grow flex flex-col">
+                                    <a href="https://docs.google.com/spreadsheets/d/1HF92DC0X1301vyquRkgRegQwkcXyPzcdEaAQe3SQEF4/edit?gid=1290737513#gid=1290737513" target="_blank" rel="noopener noreferrer" class="block w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg text-sm text-center transition-colors duration-200">EXPEDICOES_BRA</a>
+                                    <a href="https://docs.google.com/spreadsheets/d/1pcpj1VUwHIZNjL-qOpVS1apxMo2e_KxYFlJ8xF4rLAY/edit?gid=0#gid=0" target="_blank" rel="noopener noreferrer" class="block w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg text-sm text-center transition-colors duration-200"> Headcount de CDC</a>
+                                </div>
+                            </div>
+
+                            <!-- Categoria Card -->
+                            <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 flex flex-col transition-shadow duration-300 hover:shadow-md">
+                                <h3 class="text-lg font-bold mb-4 text-gray-800 border-b border-gray-200 pb-2">Meus Sistemas</h3>
+                                <div class="space-y-3 flex-grow flex flex-col">
+                                    <a href="https://ericlmmendes.github.io/D2D/" target="_blank" rel="noopener noreferrer" class="block w-full bg-slate-700 hover:bg-slate-800 text-white font-semibold py-2 px-4 rounded-lg text-sm text-center transition-colors duration-200">Sistema D2D</a>
+                                    <a href="https://ericlmmendes.github.io/GCB/" target="_blank" rel="noopener noreferrer" class="block w-full bg-slate-700 hover:bg-slate-800 text-white font-semibold py-2 px-4 rounded-lg text-sm text-center transition-colors duration-200">Sistema GCB</a>
+                                    <a href="https://ericlmmendes.github.io/COA/" target="_blank" rel="noopener noreferrer" class="block w-full bg-slate-700 hover:bg-slate-800 text-white font-semibold py-2 px-4 rounded-lg text-sm text-center transition-colors duration-200">Sistema COA</a>
+                                    <a href="https://ericlmmendes.github.io/BloqueioCDC/" target="_blank" rel="noopener noreferrer" class="block w-full bg-slate-700 hover:bg-slate-800 text-white font-semibold py-2 px-4 rounded-lg text-sm text-center transition-colors duration-200">Bloqueio CDC</a>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </main>
+            </div>
         </div>
+
+        <!-- Sticky Action Button -->
+        <!-- This button will stick to the bottom of the viewport but will be pushed up by the footer -->
+        <a href="https://wa.me/11930089968" target="_blank" rel="noopener noreferrer" title="Fale Conosco" class="sticky z-50 bottom-6 float-right mr-6 bg-green-500 hover:bg-green-600 text-white h-16 w-16 rounded-full flex items-center justify-center shadow-xl transition-transform transform hover:scale-110">
+            <i class="fab fa-whatsapp text-4xl"></i>
+        </a>
+        <div class="clear-both"></div>
     </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-gray-400 text-center py-6 mt-auto">
+        <div class="container mx-auto px-6">
+            <p>© <span id="footer-year"></span> Sistema EVO. Todos os direitos reservados.</p>
+            <p class="mt-2 text-sm">Desenvolvido por <a href="mailto:ericlm.evo@gmail.com" class="text-sky-400 hover:underline">ERICLM.EVO</a></p>
+        </div>
+    </footer>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Function to format numbers with a leading zero if needed
+            const padZero = (num) => String(num).padStart(2, '0');
+
+            // Get references to the elements that will be updated
+            const onlineDateSpan = document.getElementById('online-date');
+            const footerYearSpan = document.getElementById('footer-year');
+            const clockDiv = document.getElementById('clock');
+            
+            // --- Set "Online desde" with current month and year ---
+            if (onlineDateSpan) {
+                const now = new Date();
+                const dateString = now.toLocaleString('pt-BR', { month: 'long', year: 'numeric' });
+                // Capitalize the first letter of the month for better presentation
+                onlineDateSpan.textContent = dateString.charAt(0).toUpperCase() + dateString.slice(1);
+            }
+
+            // --- Set current year in the footer ---
+            if (footerYearSpan) {
+                footerYearSpan.textContent = new Date().getFullYear();
+            }
+
+            // --- Real-time clock functionality ---
+            const updateClock = () => {
+                if (clockDiv) {
+                    const now = new Date();
+                    const hours = padZero(now.getHours());
+                    const minutes = padZero(now.getMinutes());
+                    const seconds = padZero(now.getSeconds());
+                    clockDiv.textContent = `${hours}:${minutes}:${seconds}`;
+                }
+            };
+
+            // Call the function once immediately to display the clock without a 1-second delay
+            updateClock(); 
+            // Set an interval to update the clock every second
+            setInterval(updateClock, 1000);
+        });
+    </script>
 
 </body>
 </html>
